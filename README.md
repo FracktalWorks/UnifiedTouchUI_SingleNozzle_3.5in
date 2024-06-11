@@ -1,4 +1,4 @@
- Julia TouchUI
+ Unified TouchUI
 ==================
 Touch UI for all Single Nozzle printers with 3.5in touchs screen display based on `Python3` and  `PyQt5`
 
