@@ -1,0 +1,12 @@
+admin:
+  active: true
+  apikey: B5CB35E4D234410EBDEC15ACB63F79AE
+  groups:
+  - admins
+  - users
+  password: 7248bb949fd5d2e496adcf83e5aac6fe982f3515203e8d9446ddef1054d2f9b01afed28411a075211443b3e85838b48ba41e48f121525ca1d616695ab89c1632
+  permissions: []
+  roles:
+  - user
+  - admin
+  settings: {}
