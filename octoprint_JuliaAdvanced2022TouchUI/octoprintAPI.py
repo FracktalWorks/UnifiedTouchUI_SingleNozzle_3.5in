@@ -250,11 +250,14 @@ class octoprintAPI:
         '''
         Retrieve information regarding server and API version
         '''
-        url = 'http://' + self.ip + '/api/version'
-        headers = {'X-Api-Key': self.apiKey}
-        response = requests.get(url, headers=headers)
-        temp = response.json()
-        return temp
+        try:
+            url = 'http://' + self.ip + '/api/version'
+            headers = {'X-Api-Key': self.apiKey}
+            response = requests.get(url, headers=headers)
+            temp = response.json()
+            return temp
+        except Exception as e:
+            print(e)
 
     def getPrinterConnectionSettings(self):
         '''
