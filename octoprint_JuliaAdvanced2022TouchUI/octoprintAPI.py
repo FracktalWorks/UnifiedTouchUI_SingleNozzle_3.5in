@@ -3,6 +3,8 @@ import os
 import requests
 import json
 
+from logger import *
+
 '''
 ToDo:
 Check response codes for important functions
@@ -12,6 +14,7 @@ Check header content types in the GET/POST requests
 
 class octoprintAPI:
     def __init__(self, ip=None, apiKey=None):
+        log_info("Inside octoprintAPI init")
         '''
         Initialize the object with URL and API key
 
@@ -25,7 +28,9 @@ class octoprintAPI:
         self.apiKey = apiKey
         # Try a simple request to see if the API key works
         # Keep the info, in case we need it later
-        self.version = self.version()
+        # log_info("Calling version()")
+        # self.version = self.version()
+        # log_info("version function done, exiting init")
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # ++++++++++++++++++++++++ File Handling  ++++++++++++++++++++++++++++++++++++++
@@ -250,14 +255,12 @@ class octoprintAPI:
         '''
         Retrieve information regarding server and API version
         '''
-        try:
-            url = 'http://' + self.ip + '/api/version'
-            headers = {'X-Api-Key': self.apiKey}
-            response = requests.get(url, headers=headers)
-            temp = response.json()
-            return temp
-        except Exception as e:
-            print(e)
+        
+        url = 'http://' + self.ip + '/api/version'
+        headers = {'X-Api-Key': self.apiKey}
+        response = requests.get(url, headers=headers)
+        temp = response.json()
+        return temp
 
     def getPrinterConnectionSettings(self):
         '''

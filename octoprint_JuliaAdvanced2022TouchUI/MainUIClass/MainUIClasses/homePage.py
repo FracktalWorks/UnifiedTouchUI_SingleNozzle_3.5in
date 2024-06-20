@@ -1,6 +1,5 @@
 import dialog
 import os
-from MainUIClass.config import octopiclient
 
 
 class homePage:
@@ -30,7 +29,7 @@ class homePage:
         Displays a message box asking if the user is sure if he wants to turn off the print
         '''
         if dialog.WarningYesNo(self.MainUIObj, "Are you sure you want to stop the print?"):
-            octopiclient.cancelPrint()
+            self.MainUIObj.octopiclient.cancelPrint()
 
     def playPauseAction(self):
         '''
@@ -38,8 +37,8 @@ class homePage:
         '''
         if self.MainUIObj.printerStatusText == "Operational":
             if self.MainUIObj.playPauseButton.isChecked:
-                octopiclient.startPrint()
+                self.MainUIObj.octopiclient.startPrint()
         elif self.MainUIObj.printerStatusText == "Printing":
-            octopiclient.pausePrint()
+            self.MainUIObj.octopiclient.pausePrint()
         elif self.MainUIObj.printerStatusText == "Paused":
-            octopiclient.resumePrint()
+            self.MainUIObj.octopiclient.resumePrint()

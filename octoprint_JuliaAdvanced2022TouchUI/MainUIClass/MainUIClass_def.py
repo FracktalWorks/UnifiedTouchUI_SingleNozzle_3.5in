@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from MainUIClass.MainUIClasses import printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, printerStatus, settingsPage, settingsPage, softwareUpdatePage, start_keyboard, calibrationPage, networking
 import mainGUI
-from MainUIClass.config import _fromUtf8, setCalibrationPosition, ip, apiKey, Development, octopiclient
+from MainUIClass.config import _fromUtf8, setCalibrationPosition, ip, apiKey, Development
 import logging
 import styles
 from MainUIClass.socket_qt import QtWebsocket
@@ -14,17 +14,26 @@ import subprocess
 
 import time
 
+from logger import *
+
 # from MainUIClass.import_helper import load_classes      #used to import all classes at runtime
 
 import dialog
 
 class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
+
+    
     
     def __init__(self):
+
+        log_info("Starting mainUI init.")
+
         '''
         This method gets called when an object of type MainUIClass is defined
         '''
-
+        log_info("Initializing octopiclient")
+        self.octopiclient = octoprintAPI(ip, apiKey)
+        log_debug("Octopiclient initialised")
         super(MainUIClass, self).__init__()
 
         self.printerNameInstance = printerName.printerName(self)
@@ -84,7 +93,7 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
             # if not Development:
             #     self.sanityCheck = ThreadSanityCheck(self._logger, virtual=not self.__timelapse_enabled)
             # else:
-            self.sanityCheck = ThreadSanityCheck(virtual=False)
+            self.sanityCheck = ThreadSanityCheck(self.octopiclient, virtual=False)
             self.sanityCheck.start()
             self.sanityCheck.loaded_signal.connect(self.proceed)
             self.sanityCheck.startup_error_signal.connect(self.handleStartupError)
@@ -104,6 +113,8 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
                 self._logger.error(e)
 
     def setupUi(self, MainWindow):
+        log_info("setup UI")
+        
         super(MainUIClass, self).setupUi(MainWindow)
         font = QtGui.QFont()
         font.setFamily(_fromUtf8("Gotham"))
@@ -145,6 +156,9 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         self.movie.start()
 
     def safeProceed(self):
+        
+        log_info("safe proceed")
+        
         '''
         When Octoprint server cannot connect for whatever reason, still show the home screen to conduct diagnostics
         '''
@@ -152,7 +166,7 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         if not Development:
             self.stackedWidget.setCurrentWidget(self.homePage)
             # self.Lock_showLock()
-            self.setIPStatus()
+            self.networkingInstance.setIPStatus()
         else:
             self.stackedWidget.setCurrentWidget(self.homePage)
 
@@ -242,6 +256,9 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         self.toggleFilamentSensorButton.setDisabled()
 
     def proceed(self):
+        
+        log_info("proceed")
+        
         '''
         Startes websocket, as well as initialises button actions and callbacks. THis is done in such a manner so that the callbacks that dnepend on websockets
         load only after the socket is available which in turn is dependent on the server being available which is checked in the sanity check thread
@@ -261,6 +278,9 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         self.onServerConnected()
 
     def setActions(self):
+        
+        log_info("set actions")
+        
 
         '''
         defines all the Slots and Button events.
@@ -288,19 +308,25 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         #         self.lockSettingsInstance = lockSettings(self)
         
     def handleStartupError(self):
+        
+        log_info("handle startup error")
+        
         self.safeProceed()
         print('Unable to connect to Octoprint Server')
         if dialog.WarningOk(self, "Unable to connect to internal Server, try restoring factory settings", overlay=True):
             pass
 
     def onServerConnected(self):
+        
+        log_info("Starting mainUI init.")
+        
         self.filamentSensorInstance.isFilamentSensorInstalled()
         # if not self.__timelapse_enabled:
         #     return
         # if self.__timelapse_started:
         #     return
         try:
-            response = octopiclient.isFailureDetected()
+            response = self.octopiclient.isFailureDetected()
             if response["canRestore"] is True:
                 self.printRestoreInstance.printRestoreMessageBox(response["file"])
             else:
@@ -315,15 +341,18 @@ class ThreadSanityCheck(QtCore.QThread):
     loaded_signal = QtCore.pyqtSignal()
     startup_error_signal = QtCore.pyqtSignal()
 
-    def __init__(self, logger = None, virtual=False):
+    def __init__(self, octopiclient, logger = None, virtual=False):
+        
+        log_info("Starting sanity check init.")
+        
         super(ThreadSanityCheck, self).__init__()
+        self.octopiclient = octopiclient
         self.MKSPort = None
         self.virtual = virtual
         if not Development:
             self._logger = logger
 
     def run(self):
-        global octopiclient
         self.shutdown_flag = False
         # get the first value of t1 (runtime check)
         uptime = 0
@@ -339,7 +368,6 @@ class ThreadSanityCheck(QtCore.QThread):
                 if not self.virtual:
                     result = subprocess.Popen("dmesg | grep 'ttyUSB'", stdout=subprocess.PIPE, shell=True).communicate()[0]
                     result = result.split(b'\n')  # each ssid and pass from an item in a list ([ssid pass,ssid paas])
-                    print(result)
                     result = [s.strip() for s in result]
                     for line in result:
                         if b'FTDI' in line:
@@ -350,10 +378,10 @@ class ThreadSanityCheck(QtCore.QThread):
                             print(self.MKSPort)
 
                     if not self.MKSPort:
-                        octopiclient.connectPrinter(port="VIRTUAL", baudrate=115200)
+                        self.octopiclient.connectPrinter(port="VIRTUAL", baudrate=115200)
                     else:
-                        octopiclient.connectPrinter(port="/dev/" + self.MKSPort, baudrate=115200)
-                break
+                        self.octopiclient.connectPrinter(port="/dev/" + self.MKSPort, baudrate=115200)
+                        break
             except Exception as e:
                 time.sleep(1)
                 uptime = uptime + 1

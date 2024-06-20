@@ -2,7 +2,6 @@ import dialog
 import requests
 from MainUIClass.config import apiKey, _fromUtf8, ip
 from PyQt5 import QtGui
-from MainUIClass.config import octopiclient
 
 class filamentSensor:
     def __init__(self, MainUIObj):
@@ -67,7 +66,7 @@ class filamentSensor:
                 if not pause_print or self.MainUIObj.stackedWidget.currentWidget() in no_pause_pages:
                     if dialog.WarningOk(self.MainUIObj, "Door opened"):
                         return
-                octopiclient.pausePrint()
+                self.MainUIObj.octopiclient.pausePrint()
                 if dialog.WarningOk(self.MainUIObj, "Door opened. Print paused.", overlay=True):
                     return
             else:

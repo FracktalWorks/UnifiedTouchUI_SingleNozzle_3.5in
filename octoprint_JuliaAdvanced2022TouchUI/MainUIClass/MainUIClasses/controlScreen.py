@@ -1,39 +1,37 @@
-from MainUIClass.config import octopiclient
-
 class controlScreen:
     def __init__(self, MainUIObj):
         self.MainUIObj = MainUIObj
         
     def connect(self):
-        self.MainUIObj.moveYPButton.pressed.connect(lambda: octopiclient.jog(y=self.step, speed=1000))
-        self.MainUIObj.moveYMButton.pressed.connect(lambda: octopiclient.jog(y=-self.step, speed=1000))
-        self.MainUIObj.moveXMButton.pressed.connect(lambda: octopiclient.jog(x=-self.step, speed=1000))
-        self.MainUIObj.moveXPButton.pressed.connect(lambda: octopiclient.jog(x=self.step, speed=1000))
-        self.MainUIObj.moveZPButton.pressed.connect(lambda: octopiclient.jog(z=self.step, speed=1000))
-        self.MainUIObj.moveZMButton.pressed.connect(lambda: octopiclient.jog(z=-self.step, speed=1000))
-        self.MainUIObj.extruderButton.pressed.connect(lambda: octopiclient.extrude(self.step))
-        self.MainUIObj.retractButton.pressed.connect(lambda: octopiclient.extrude(-self.step))
-        self.MainUIObj.motorOffButton.pressed.connect(lambda: octopiclient.gcode(command='M18'))
-        self.MainUIObj.fanOnButton.pressed.connect(lambda: octopiclient.gcode(command='M106'))
-        self.MainUIObj.fanOffButton.pressed.connect(lambda: octopiclient.gcode(command='M107'))
+        self.MainUIObj.moveYPButton.pressed.connect(lambda: self.MainUIObj.octopiclient.jog(y=self.step, speed=1000))
+        self.MainUIObj.moveYMButton.pressed.connect(lambda: self.MainUIObj.octopiclient.jog(y=-self.step, speed=1000))
+        self.MainUIObj.moveXMButton.pressed.connect(lambda: self.MainUIObj.octopiclient.jog(x=-self.step, speed=1000))
+        self.MainUIObj.moveXPButton.pressed.connect(lambda: self.MainUIObj.octopiclient.jog(x=self.step, speed=1000))
+        self.MainUIObj.moveZPButton.pressed.connect(lambda: self.MainUIObj.octopiclient.jog(z=self.step, speed=1000))
+        self.MainUIObj.moveZMButton.pressed.connect(lambda: self.MainUIObj.octopiclient.jog(z=-self.step, speed=1000))
+        self.MainUIObj.extruderButton.pressed.connect(lambda: self.MainUIObj.octopiclient.extrude(self.step))
+        self.MainUIObj.retractButton.pressed.connect(lambda: self.MainUIObj.octopiclient.extrude(-self.step))
+        self.MainUIObj.motorOffButton.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='M18'))
+        self.MainUIObj.fanOnButton.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='M106'))
+        self.MainUIObj.fanOffButton.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='M107'))
         self.MainUIObj.cooldownButton.pressed.connect(self.coolDownAction)
         self.MainUIObj.step100Button.pressed.connect(lambda: self.setStep(100))
         self.MainUIObj.step1Button.pressed.connect(lambda: self.setStep(1))
         self.MainUIObj.step10Button.pressed.connect(lambda: self.setStep(10))
-        self.MainUIObj.homeXYButton.pressed.connect(lambda: octopiclient.home(['x', 'y']))
-        self.MainUIObj.homeZButton.pressed.connect(lambda: octopiclient.home(['z']))
+        self.MainUIObj.homeXYButton.pressed.connect(lambda: self.MainUIObj.octopiclient.home(['x', 'y']))
+        self.MainUIObj.homeZButton.pressed.connect(lambda: self.MainUIObj.octopiclient.home(['z']))
         self.MainUIObj.controlBackButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.homePage))
-        self.MainUIObj.setToolTempButton.pressed.connect(lambda: octopiclient.setToolTemperature(
+        self.MainUIObj.setToolTempButton.pressed.connect(lambda: self.MainUIObj.octopiclient.setToolTemperature(
             self.MainUIObj.toolTempSpinBox.value()))
-        self.MainUIObj.setBedTempButton.pressed.connect(lambda: octopiclient.setBedTemperature(self.MainUIObj.bedTempSpinBox.value()))
+        self.MainUIObj.setBedTempButton.pressed.connect(lambda: self.MainUIObj.octopiclient.setBedTemperature(self.MainUIObj.bedTempSpinBox.value()))
 
-        self.MainUIObj.setFlowRateButton.pressed.connect(lambda: octopiclient.flowrate(self.MainUIObj.flowRateSpinBox.value()))
-        self.MainUIObj.setFeedRateButton.pressed.connect(lambda: octopiclient.feedrate(self.MainUIObj.feedRateSpinBox.value()))
+        self.MainUIObj.setFlowRateButton.pressed.connect(lambda: self.MainUIObj.octopiclient.flowrate(self.MainUIObj.flowRateSpinBox.value()))
+        self.MainUIObj.setFeedRateButton.pressed.connect(lambda: self.MainUIObj.octopiclient.feedrate(self.MainUIObj.feedRateSpinBox.value()))
 
-        # self.MainUIObj.moveZPBabyStep.pressed.connect(lambda: octopiclient.gcode(command='SET_GCODE_OFFSET Z_ADJUST=0.025 MOVE=1'))
-        # self.MainUIObj.moveZMBabyStep.pressed.connect(lambda: octopiclient.gcode(command='SET_GCODE_OFFSET Z_ADJUST=-0.025 MOVE=1'))
-        self.MainUIObj.moveZPBabyStep.pressed.connect(lambda: octopiclient.gcode(command='M290 Z0.025'))
-        self.MainUIObj.moveZMBabyStep.pressed.connect(lambda: octopiclient.gcode(command='M290 Z-0.025'))
+        # self.MainUIObj.moveZPBabyStep.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='SET_GCODE_OFFSET Z_ADJUST=0.025 MOVE=1'))
+        # self.MainUIObj.moveZMBabyStep.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='SET_GCODE_OFFSET Z_ADJUST=-0.025 MOVE=1'))
+        self.MainUIObj.moveZPBabyStep.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='M290 Z0.025'))
+        self.MainUIObj.moveZMBabyStep.pressed.connect(lambda: self.MainUIObj.octopiclient.gcode(command='M290 Z-0.025'))
 
     def control(self):
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.controlPage)
@@ -67,8 +65,8 @@ class controlScreen:
         '''
         Turns all heaters and fans off
         '''
-        octopiclient.gcode(command='M107')
-        octopiclient.setToolTemperature({"tool0": 0})
-        octopiclient.setBedTemperature(0)
+        self.MainUIObj.octopiclient.gcode(command='M107')
+        self.MainUIObj.octopiclient.setToolTemperature({"tool0": 0})
+        self.MainUIObj.octopiclient.setBedTemperature(0)
         self.MainUIObj.toolTempSpinBox.setProperty("value", 0)
         self.MainUIObj.bedTempSpinBox.setProperty("value", 0)

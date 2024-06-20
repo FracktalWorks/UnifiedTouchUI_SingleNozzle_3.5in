@@ -2,7 +2,6 @@ import dialog
 import requests
 from MainUIClass.config import apiKey, ip
 from PyQt5 import QtCore
-from MainUIClass.config import octopiclient
 
 class softwareUpdatePage:
     def __init__(self, MainUIObj):
@@ -10,7 +9,7 @@ class softwareUpdatePage:
 
     def connect(self):
         self.MainUIObj.softwareUpdateBackButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.settingsPage))
-        self.MainUIObj.performUpdateButton.pressed.connect(lambda: octopiclient.performSoftwareUpdate())
+        self.MainUIObj.performUpdateButton.pressed.connect(lambda: self.MainUIObj.octopiclient.performSoftwareUpdate())
 
         self.MainUIObj.QtSocket.update_started_signal.connect(self.softwareUpdateProgress)
         self.MainUIObj.QtSocket.update_log_signal.connect(self.softwareUpdateProgressLog)
@@ -48,7 +47,7 @@ class softwareUpdatePage:
         # Firmware version on the MKS https://github.com/FracktalWorks/OctoPrint-JuliaFirmwareUpdater
         self.MainUIObj.updateListWidget.addItem(self.getFirmwareVersion())
 
-        data = octopiclient.getSoftwareUpdateInfo()
+        data = self.MainUIObj.octopiclient.getSoftwareUpdateInfo()
         if data:
             for item in data["information"]:
                 plugin = data["information"][item]
@@ -106,7 +105,7 @@ class softwareUpdatePage:
             pass
 
     def softwareUpdate(self):
-        data = octopiclient.getSoftwareUpdateInfo()
+        data = self.MainUIObj.octopiclient.getSoftwareUpdateInfo()
         updateAvailable = False
         if data:
             for item in data["information"]:
@@ -115,7 +114,7 @@ class softwareUpdatePage:
         if updateAvailable:
             print('Update Available')
             if dialog.SuccessYesNo(self.MainUIObj, "Update Available! Update Now?", overlay=True):
-                octopiclient.performSoftwareUpdate()
+                self.MainUIObj.octopiclient.performSoftwareUpdate()
         else:
             if dialog.SuccessOk(self.MainUIObj, "System is Up To Date!", overlay=True):
                 print('Update Unavailable')

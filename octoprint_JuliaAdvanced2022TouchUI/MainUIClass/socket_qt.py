@@ -121,9 +121,9 @@ class QtWebsocket(QtCore.QThread):
                     # if 'Count' in item:  # gets the current Z value, uses it to set Z offset
                     #     self.emit(QtCore.SIGNAL('SET_Z_HOME_OFFSET'), item[item.index('Z') + 2:].split(' ', 1)[0],
                     #               False)
-                    if 'Count' in item:  # can get thris throught the positionUpdate event
-                        self.set_z_tool_offset_signal.emit(item[item.index('Z') + 2:].split(' ', 1)[0],
-                                  False)
+                    # if 'Count' in item:  # can get thris throught the positionUpdate event
+                    #     self.set_z_tool_offset_signal.emit(item[item.index('Z') + 2:].split(' ', 1)[0],
+                    #               False)
                     # if 'M218' in item:
                     #     self.tool_offset_signal.emit(item[item.index('M218'):])
                     

@@ -1,6 +1,5 @@
 import styles
 from PyQt5 import QtGui
-from MainUIClass.config import octopiclient
 from MainUIClass.config import _fromUtf8
 
 class printerStatus:
@@ -63,7 +62,7 @@ class printerStatus:
                     self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.changeFilamentExtrudePage)
                 else:
                     self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.changeFilamentRetractPage)
-                    octopiclient.extrude(10)  # extrudes some amount of filament to prevent plugging
+                    self.MainUIObj.octopiclient.extrude(10)  # extrudes some amount of filament to prevent plugging
 
             self.MainUIObj.changeFilamentProgress.setValue(int(temperature['tool0Actual']))
 
@@ -112,7 +111,7 @@ class printerStatus:
             '''
             if self.MainUIObj.currentImage != self.MainUIObj.currentFile:
                 self.MainUIObj.currentImage = self.MainUIObj.currentFile
-                img = octopiclient.getImage(file['job']['file']['name'].replace(".gcode", ".png"))
+                img = self.MainUIObj.octopiclient.getImage(file['job']['file']['name'].replace(".gcode", ".png"))
                 if img:
                     pixmap = QtGui.QPixmap()
                     pixmap.loadFromData(img)
@@ -150,7 +149,7 @@ class printerStatus:
             self.MainUIObj.menuPrintButton.setDisabled(True)
             # if not Development:
             #     if not self.__timelapse_enabled:
-            #         octopiclient.cancelPrint()
+            #         self.MainUIObj.octopiclient.cancelPrint()
             #         self.coolDownAction()
         elif status == "Paused":
             self.MainUIObj.playPauseButton.setChecked(False)

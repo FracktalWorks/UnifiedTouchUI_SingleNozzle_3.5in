@@ -1,4 +1,3 @@
-from MainUIClass.config import octopiclient
 from octoprintAPI import octoprintAPI
 import dialog
 
@@ -11,7 +10,7 @@ class printRestore:
         Displays a message box alerting the user of a filament error
         '''
         if dialog.WarningYesNo(self.MainUIObj, file + " Did not finish, would you like to restore?"):
-            response = octopiclient.restore(restore=True)
+            response = self.MainUIObj.octopiclient.restore(restore=True)
             if response["status"] == "Successfully Restored":
                 dialog.WarningOk(response["status"])
             else:

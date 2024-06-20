@@ -1,4 +1,3 @@
-from MainUIClass.config import octopiclient
 import os
 import subprocess
 from datetime import datetime
@@ -45,7 +44,7 @@ class getFilesAndInfo:
         '''
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.fileListLocalPage)
         files = []
-        for file in octopiclient.retrieveFileInformation()['files']:
+        for file in self.MainUIObj.octopiclient.retrieveFileInformation()['files']:
             if file["type"] == "machinecode":
                 files.append(file)
 
@@ -85,7 +84,7 @@ class getFilesAndInfo:
         try:
             self.MainUIObj.fileSelected.setText(self.MainUIObj.fileListWidget.currentItem().text())
             self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printSelectedLocalPage)
-            file = octopiclient.retrieveFileInformation(self.MainUIObj.fileListWidget.currentItem().text())
+            file = self.MainUIObj.octopiclient.retrieveFileInformation(self.MainUIObj.fileListWidget.currentItem().text())
             try:
                 self.MainUIObj.fileSizeSelected.setText(size(file['size']))
             except KeyError:
@@ -113,13 +112,13 @@ class getFilesAndInfo:
             except KeyError:
                 self.MainUIObj.filamentLengthFileSelected.setText('-')
             # uncomment to select the file when selectedd in list
-            # octopiclient.selectFile(self.fileListWidget.currentItem().text(), False)
+            # self.MainUIObj.octopiclient.selectFile(self.fileListWidget.currentItem().text(), False)
             self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printSelectedLocalPage)
 
             '''
             If image is available from server, set it, otherwise display default image
             '''
-            img = octopiclient.getImage(self.MainUIObj.fileListWidget.currentItem().text().replace(".gcode", ".png"))
+            img = self.MainUIObj.octopiclient.getImage(self.MainUIObj.fileListWidget.currentItem().text().replace(".gcode", ".png"))
             if img:
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(img)
@@ -165,7 +164,7 @@ class getFilesAndInfo:
         Warning: If the file is read-only, octoprint API for reading the file crashes.
         '''
 
-        file = '/media/usb0/' + str(self.fileListWidgetUSB.currentItem().text())
+        file = '/media/usb0/' + str(self.MainUIObj.fileListWidgetUSB.currentItem().text())
 
         self.uploadThread = ThreadFileUpload(file, prnt=prnt)
         self.uploadThread.start()
@@ -176,16 +175,16 @@ class getFilesAndInfo:
         '''
         Prints the file selected from printSelected()
         '''
-        octopiclient.selectFile(self.MainUIObj.fileListWidget.currentItem().text(), True)
-        # octopiclient.startPrint()
+        self.MainUIObj.octopiclient.selectFile(self.MainUIObj.fileListWidget.currentItem().text(), True)
+        # self.MainUIObj.octopiclient.startPrint()
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.homePage)
 
     def deleteItem(self):
         '''
         Deletes a gcode file, and if associates, its image file from the memory
         '''
-        octopiclient.deleteFile(self.MainUIObj.fileListWidget.currentItem().text())
-        octopiclient.deleteFile(self.MainUIObj.fileListWidget.currentItem().text().replace(".gcode", ".png"))
+        self.MainUIObj.octopiclient.deleteFile(self.MainUIObj.fileListWidget.currentItem().text())
+        self.MainUIObj.octopiclient.deleteFile(self.MainUIObj.fileListWidget.currentItem().text().replace(".gcode", ".png"))
 
         # delete PNG also
         self.fileListLocal()
@@ -203,10 +202,10 @@ class ThreadFileUpload(QtCore.QThread):
         except:
             exists = False
         if exists:
-            octopiclient.uploadImage(self.file.replace(".gcode", ".png"))
+            self.MainUIObj.octopiclient.uploadImage(self.file.replace(".gcode", ".png"))
 
         if self.prnt:
-            octopiclient.uploadGcode(file=self.file, select=True, prnt=True)
+            self.MainUIObj.octopiclient.uploadGcode(file=self.file, select=True, prnt=True)
         else:
-            octopiclient.uploadGcode(file=self.file, select=False, prnt=False)
+            self.MainUIObj.octopiclient.uploadGcode(file=self.file, select=False, prnt=False)
 

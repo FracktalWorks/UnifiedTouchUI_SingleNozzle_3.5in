@@ -1,6 +1,5 @@
 from MainUIClass.config import getCalibrationPosition
 from PyQt5 import QtGui
-from MainUIClass.config import octopiclient
 
 class calibrationPage:
     def __init__(self, MainUIObj):
@@ -69,8 +68,8 @@ class calibrationPage:
         #TODO can make this simpler, asset the offset value to string float to begin with instead of doing confitionals
         '''
 
-        octopiclient.gcode(command='M851 Z{}'.format(offset))
-        octopiclient.gcode(command='M500')
+        self.MainUIObj.octopiclient.gcode(command='M851 Z{}'.format(offset))
+        self.MainUIObj.octopiclient.gcode(command='M500')
 
 
     def showProbingFailed(self):
@@ -98,20 +97,20 @@ class calibrationPage:
         '''
 
         if self.MainUIObj.setHomeOffsetBool:
-            octopiclient.gcode(command='M206 Z{}'.format(-float(offset)))
+            self.MainUIObj.octopiclient.gcode(command='M206 Z{}'.format(-float(offset)))
             self.MainUIObj.setHomeOffsetBool = False
-            octopiclient.gcode(command='M500')
+            self.MainUIObj.octopiclient.gcode(command='M500')
             # save in EEPROM
         if setOffset:    # When the offset needs to be set from spinbox value
-            octopiclient.gcode(command='M206 Z{}'.format(-offset))
-            octopiclient.gcode(command='M500')
+            self.MainUIObj.octopiclient.gcode(command='M206 Z{}'.format(-offset))
+            self.MainUIObj.octopiclient.gcode(command='M500')
 
     def nozzleOffset(self):
         '''
         Updates the value of M206 Z in the nozzle offset spinbox. Sends M503 so that the pritner returns the value as a websocket calback
         :return:
         '''
-        octopiclient.gcode(command='M503')
+        self.MainUIObj.octopiclient.gcode(command='M503')
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.nozzleOffsetPage)
 
     def quickStep1(self):
@@ -123,11 +122,11 @@ class calibrationPage:
         :return:
         '''
 
-        octopiclient.gcode(command='M503')
-        octopiclient.gcode(command='M420 S0')
-        octopiclient.gcode(command='M206 Z0')
-        octopiclient.home(['x', 'y', 'z'])
-        octopiclient.jog(x=100, y=100, z=15, absolute=True, speed=1500)
+        self.MainUIObj.octopiclient.gcode(command='M503')
+        self.MainUIObj.octopiclient.gcode(command='M420 S0')
+        self.MainUIObj.octopiclient.gcode(command='M206 Z0')
+        self.MainUIObj.octopiclient.home(['x', 'y', 'z'])
+        self.MainUIObj.octopiclient.jog(x=100, y=100, z=15, absolute=True, speed=1500)
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.quickStep1Page)
 
     def quickStep2(self):
@@ -147,8 +146,8 @@ class calibrationPage:
         :return:
         '''
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.quickStep3Page)
-        octopiclient.jog(x=self.calibrationPosition['X1'], y=self.calibrationPosition['Y1'], absolute=True, speed=9000)
-        octopiclient.jog(z=0, absolute=True, speed=1500)
+        self.MainUIObj.octopiclient.jog(x=self.calibrationPosition['X1'], y=self.calibrationPosition['Y1'], absolute=True, speed=9000)
+        self.MainUIObj.octopiclient.jog(z=0, absolute=True, speed=1500)
         if self.MainUIObj.printerName != "Julia Pro Single Nozzle":
             self.MainUIObj.movie1.stop()
             self.MainUIObj.movie2 = QtGui.QMovie("templates/img/calibration/calib2.gif")
@@ -160,9 +159,9 @@ class calibrationPage:
         levels second leveling position
         '''
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.quickStep4Page)
-        octopiclient.jog(z=10, absolute=True, speed=1500)
-        octopiclient.jog(x=self.calibrationPosition['X2'], y=self.calibrationPosition['Y2'], absolute=True, speed=9000)
-        octopiclient.jog(z=0, absolute=True, speed=1500)
+        self.MainUIObj.octopiclient.jog(z=10, absolute=True, speed=1500)
+        self.MainUIObj.octopiclient.jog(x=self.calibrationPosition['X2'], y=self.calibrationPosition['Y2'], absolute=True, speed=9000)
+        self.MainUIObj.octopiclient.jog(z=0, absolute=True, speed=1500)
         if self.MainUIObj.printerName != "Julia Pro Single Nozzle":
             self.MainUIObj.movie2.stop()
             self.MainUIObj.movie3 = QtGui.QMovie("templates/img/calibration/calib3.gif")
@@ -175,9 +174,9 @@ class calibrationPage:
         :return:
         '''
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.quickStep5Page)
-        octopiclient.jog(z=10, absolute=True, speed=1500)
-        octopiclient.jog(x=self.calibrationPosition['X3'], y=self.calibrationPosition['Y3'], absolute=True, speed=9000)
-        octopiclient.jog(z=0, absolute=True, speed=1500)
+        self.MainUIObj.octopiclient.jog(z=10, absolute=True, speed=1500)
+        self.MainUIObj.octopiclient.jog(x=self.calibrationPosition['X3'], y=self.calibrationPosition['Y3'], absolute=True, speed=9000)
+        self.MainUIObj.octopiclient.jog(z=0, absolute=True, speed=1500)
         if self.MainUIObj.printerName != "Julia Pro Single Nozzle":
             self.MainUIObj.movie3.stop()
             self.MainUIObj.movie4 = QtGui.QMovie("templates/img/calibration/calib4.gif")
@@ -200,11 +199,11 @@ class calibrationPage:
 
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.calibratePage)
         self.MainUIObj.movie4.stop()
-        octopiclient.gcode(command='M501')
-        octopiclient.home(['x', 'y', 'z'])
+        self.MainUIObj.octopiclient.gcode(command='M501')
+        self.MainUIObj.octopiclient.home(['x', 'y', 'z'])
 
     def cancelStep(self):
-        octopiclient.gcode(command='M501')
+        self.MainUIObj.octopiclient.gcode(command='M501')
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.calibratePage)
         try:
             self.MainUIObj.movie1.stop()

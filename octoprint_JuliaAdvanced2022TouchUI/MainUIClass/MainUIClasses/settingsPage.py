@@ -1,6 +1,5 @@
 from MainUIClass.network_utils import getIP
 import qrcode
-from MainUIClass.config import octopiclient
 from MainUIClass.MainUIClasses.networking_package.wifiSettingsPage import ThreadRestartNetworking
 from MainUIClass.gui_elements import Image
 import dialog
@@ -55,5 +54,5 @@ class settingsPage:
     def restorePrintDefaults(self):
         if dialog.WarningYesNo(self.MainUIObj, "Are you sure you want to restore default print settings?\nWarning: Doing so will erase offsets and bed leveling info",
                                 overlay=True):
-            octopiclient.gcode(command='M502')
-            octopiclient.gcode(command='M500')
+            self.MainUIObj.octopiclient.gcode(command='M502')
+            self.MainUIObj.octopiclient.gcode(command='M500')

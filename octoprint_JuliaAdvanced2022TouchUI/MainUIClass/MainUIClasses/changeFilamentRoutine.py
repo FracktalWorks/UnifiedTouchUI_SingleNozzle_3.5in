@@ -1,4 +1,3 @@
-from MainUIClass.config import octopiclient
 from MainUIClass.config import filaments
 
 class changeFilamentRoutine:
@@ -13,13 +12,13 @@ class changeFilamentRoutine:
         self.MainUIObj.changeFilamentLoadButton.pressed.connect(lambda: self.loadFilament())
         self.MainUIObj.loadDoneButton.pressed.connect(self.MainUIObj.controlScreenInstance.control)
         self.MainUIObj.unloadDoneButton.pressed.connect(self.changeFilament)
-        self.MainUIObj.retractFilamentButton.pressed.connect(lambda: octopiclient.extrude(-20))
-        self.MainUIObj.ExtrudeButton.pressed.connect(lambda: octopiclient.extrude(20))
+        self.MainUIObj.retractFilamentButton.pressed.connect(lambda: self.MainUIObj.octopiclient.extrude(-20))
+        self.MainUIObj.ExtrudeButton.pressed.connect(lambda: self.MainUIObj.octopiclient.extrude(20))
 
     def unloadFilament(self):
         # Update
         if self.MainUIObj.changeFilamentComboBox.findText("Loaded Filament") == -1:
-            octopiclient.setToolTemperature(
+            self.MainUIObj.octopiclient.setToolTemperature(
                 filaments[str(self.MainUIObj.changeFilamentComboBox.currentText())])
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.changeFilamentProgressPage)
         self.MainUIObj.changeFilamentStatus.setText("Heating , Please Wait...")
@@ -31,7 +30,7 @@ class changeFilamentRoutine:
     def loadFilament(self):
         # Update
         if self.MainUIObj.changeFilamentComboBox.findText("Loaded Filament") == -1:
-            octopiclient.setToolTemperature(
+            self.MainUIObj.octopiclient.setToolTemperature(
                 filaments[str(self.MainUIObj.changeFilamentComboBox.currentText())])
         self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.changeFilamentProgressPage)
         self.MainUIObj.changeFilamentStatus.setText("Heating , Please Wait...")
