@@ -31,9 +31,9 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         '''
         This method gets called when an object of type MainUIClass is defined
         '''
-        log_info("Initializing octopiclient")
-        self.octopiclient = octoprintAPI(ip, apiKey)
-        log_debug("Octopiclient initialised")
+        # log_info("Initializing octopiclient")
+        # self.octopiclient = octoprintAPI(ip, apiKey)
+        # log_debug("Octopiclient initialised")
         super(MainUIClass, self).__init__()
 
         self.printerNameInstance = printerName.printerName(self)
@@ -93,8 +93,9 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
             # if not Development:
             #     self.sanityCheck = ThreadSanityCheck(self._logger, virtual=not self.__timelapse_enabled)
             # else:
-            self.sanityCheck = ThreadSanityCheck(self.octopiclient, virtual=False)
+            self.sanityCheck = ThreadSanityCheck(virtual=False)
             self.sanityCheck.start()
+            self.octopiclient = octopiclient
             self.sanityCheck.loaded_signal.connect(self.proceed)
             self.sanityCheck.startup_error_signal.connect(self.handleStartupError)
 
@@ -341,7 +342,7 @@ class ThreadSanityCheck(QtCore.QThread):
     loaded_signal = QtCore.pyqtSignal()
     startup_error_signal = QtCore.pyqtSignal()
 
-    def __init__(self, octopiclient, logger = None, virtual=False):
+    def __init__(self, logger = None, virtual=False):
         
         log_info("Starting sanity check init.")
         
@@ -353,6 +354,7 @@ class ThreadSanityCheck(QtCore.QThread):
             self._logger = logger
 
     def run(self):
+        global octopiclient
         self.shutdown_flag = False
         # get the first value of t1 (runtime check)
         uptime = 0
@@ -364,7 +366,7 @@ class ThreadSanityCheck(QtCore.QThread):
                     self.shutdown_flag = True
                     self.startup_error_signal.emit()
                     break
-                #octopiclient = octoprintAPI(ip, apiKey)
+                octopiclient = octoprintAPI(ip, apiKey)
                 if not self.virtual:
                     result = subprocess.Popen("dmesg | grep 'ttyUSB'", stdout=subprocess.PIPE, shell=True).communicate()[0]
                     result = result.split(b'\n')  # each ssid and pass from an item in a list ([ssid pass,ssid paas])
@@ -381,7 +383,7 @@ class ThreadSanityCheck(QtCore.QThread):
                         self.octopiclient.connectPrinter(port="VIRTUAL", baudrate=115200)
                     else:
                         self.octopiclient.connectPrinter(port="/dev/" + self.MKSPort, baudrate=115200)
-                        break
+                break
             except Exception as e:
                 time.sleep(1)
                 uptime = uptime + 1

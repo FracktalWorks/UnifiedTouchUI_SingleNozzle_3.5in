@@ -255,7 +255,8 @@ class octoprintAPI:
         '''
         Retrieve information regarding server and API version
         '''
-        
+        log_debug("Ip: " + str(self.ip))
+        log_debug("Ip: " + str(self.apiKey))
         url = 'http://' + self.ip + '/api/version'
         headers = {'X-Api-Key': self.apiKey}
         response = requests.get(url, headers=headers)
