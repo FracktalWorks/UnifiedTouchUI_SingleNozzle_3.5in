@@ -1,18 +1,32 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-from MainUIClass.MainUIClasses import printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, printerStatus, settingsPage, settingsPage, softwareUpdatePage, start_keyboard, calibrationPage, networking
+
+from MainUIClass.MainUIClasses.printerName import printerName
+from MainUIClass.MainUIClasses.changeFilamentRoutine import changeFilamentRoutine
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
+from MainUIClass.MainUIClasses.displaySettings import displaySettings
+from MainUIClass.MainUIClasses.filamentSensor import filamentSensor
+from MainUIClass.MainUIClasses.firmwareUpdatePage import firmwareUpdatePage
+from MainUIClass.MainUIClasses.getFilesAndInfo import getFilesAndInfo
+from MainUIClass.MainUIClasses.homePage import homePage
+from MainUIClass.MainUIClasses.menuPage import menuPage
+from MainUIClass.MainUIClasses.printLocationScreen import printLocationScreen
+from MainUIClass.MainUIClasses.printRestore import printRestore
+from MainUIClass.MainUIClasses.settingsPage import settingsPage
+from MainUIClass.MainUIClasses.softwareUpdatePage import softwareUpdatePage
+from MainUIClass.MainUIClasses.start_keyboard import startKeyboard
+from MainUIClass.MainUIClasses.calibrationPage import calibrationPage
+from MainUIClass.MainUIClasses.networking import networking
+from MainUIClass.MainUIClasses.threads import ThreadSanityCheck
+from MainUIClass.MainUIClasses.lineEdits import lineEdits
+
 import mainGUI
-from MainUIClass.config import _fromUtf8, setCalibrationPosition, ip, apiKey, Development
+
+from MainUIClass.config import _fromUtf8, setCalibrationPosition, Development
 import logging
 import styles
 from MainUIClass.socket_qt import QtWebsocket
-
+from MainUIClass.MainUIClasses.threads import octopiclient
 from MainUIClass.gui_elements import ClickableLineEdit
-
-from octoprintAPI import octoprintAPI
-
-import subprocess
-
-import time
 
 from logger import *
 
@@ -20,7 +34,7 @@ from logger import *
 
 import dialog
 
-class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
+class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, settingsPage, settingsPage, softwareUpdatePage, calibrationPage, networking):
     
     def __init__(self):
 
@@ -29,35 +43,9 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         '''
         This method gets called when an object of type MainUIClass is defined
         '''
-        # log_info("Initializing octopiclient")
-        # self.octopiclient = octoprintAPI(ip, apiKey)
-        # log_debug("Octopiclient initialised")
-        super(MainUIClass, self).__init__()
 
-        self.printerNameInstance = printerName.printerName(self)
-
-        # classes = load_classes('mainUI_classes')
-        # globals().update(classes)
-        # Uncomment the above lines to import classes at runtime
-        
-        self.controlScreenInstance = controlScreen.controlScreen(self)
-        self.printRestoreInstance = printRestore.printRestore(self)
-        self.startKeyboard = start_keyboard.startKeyboard
-
-        self.printerStatusInstance = printerStatus.printerStatus(self)    
-        #Initialising all pages/screens
-        self.homePageInstance = homePage.homePage(self)
-        self.menuPageInstance = menuPage.menuPage(self)
-        self.calibrationPageInstance = calibrationPage.calibrationPage(self)
-        self.getFilesAndInfoInstance = getFilesAndInfo.getFilesAndInfo(self)
-        self.printLocationScreenInstance = printLocationScreen.printLocationScreen(self)
-        self.changeFilamentRoutineInstance = changeFilamentRoutine.changeFilamentRoutine(self)
-        self.networkingInstance = networking.networking(self)
-        self.displaySettingsInstance = displaySettings.displaySettings(self)
-        self.softwareUpdatePageInstance = softwareUpdatePage.softwareUpdatePage(self)
-        self.firmwareUpdatePageInstance = firmwareUpdatePage.firmwareUpdatePage(self)
-        self.filamentSensorInstance = filamentSensor.filamentSensor(self)
-        self.settingsPageInstance = settingsPage.settingsPage(self)
+        QtWidgets.QMainWindow.__init__(MainUIClass, self)
+        super().__init__()
  
         if not Development:
             formatter = logging.Formatter("%(asctime)s %(message)s")
@@ -82,7 +70,7 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
                 # print("File time = {}, Demo = {}".format(self.__packager.read_time(), self.__timelapse_started))
             self.setupUi(self)
             self.stackedWidget.setCurrentWidget(self.loadingPage)
-            self.controlScreenInstance.setStep(10)
+            self.setStep(10)
             self.keyboardWindow = None
             self.changeFilamentHeatingFlag = False
             self.setHomeOffsetBool = False
@@ -93,7 +81,6 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
             # else:
             self.sanityCheck = ThreadSanityCheck(virtual=False)
             self.sanityCheck.start()
-            self.octopiclient = octopiclient
             self.sanityCheck.loaded_signal.connect(self.proceed)
             self.sanityCheck.startup_error_signal.connect(self.handleStartupError)
 
@@ -115,34 +102,10 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         log_info("setup UI")
         
         super(MainUIClass, self).setupUi(MainWindow)
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Gotham"))
-        font.setPointSize(15)
-
-        self.wifiPasswordLineEdit = ClickableLineEdit(self.wifiSettingsPage)
-        self.wifiPasswordLineEdit.setGeometry(QtCore.QRect(0, 170, 480, 60))
-        self.wifiPasswordLineEdit.setFont(font)
-        self.wifiPasswordLineEdit.setStyleSheet(styles.textedit)
-        self.wifiPasswordLineEdit.setObjectName(_fromUtf8("wifiPasswordLineEdit"))
-
-        font.setPointSize(11)
-        self.ethStaticIpLineEdit = ClickableLineEdit(self.ethStaticSettings)
-        self.ethStaticIpLineEdit.setGeometry(QtCore.QRect(120, 10, 300, 30))
-        self.ethStaticIpLineEdit.setFont(font)
-        self.ethStaticIpLineEdit.setStyleSheet(styles.textedit)
-        self.ethStaticIpLineEdit.setObjectName(_fromUtf8("ethStaticIpLineEdit"))
-
-        self.ethStaticGatewayLineEdit = ClickableLineEdit(self.ethStaticSettings)
-        self.ethStaticGatewayLineEdit.setGeometry(QtCore.QRect(120, 60, 300, 30))
-        self.ethStaticGatewayLineEdit.setFont(font)
-        self.ethStaticGatewayLineEdit.setStyleSheet(styles.textedit)
-        self.ethStaticGatewayLineEdit.setObjectName(_fromUtf8("ethStaticGatewayLineEdit"))
 
         self.menuCartButton.setDisabled(True)
 
-        self.printerNameInstance.connect()
-        self.printerName = self.printerNameInstance.getPrinterName()
-        self.printerNameInstance.setPrinterNameComboBox()
+        self.setPrinterNameComboBox()
         setCalibrationPosition(self)
 
         if self.printerName == "Julia Advanced":
@@ -269,11 +232,11 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         if not Development:
             self.stackedWidget.setCurrentWidget(self.homePage)
             # self.Lock_showLock()
-            self.networkingInstance.setIPStatus()
+            self.setIPStatus()
         else:
             self.stackedWidget.setCurrentWidget(self.homePage)
 
-        self.filamentSensorInstance.isFilamentSensorInstalled()
+        self.isFilamentSensorInstalled()
         self.onServerConnected()
 
     def setActions(self):
@@ -285,22 +248,6 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         defines all the Slots and Button events.
         '''
         self.QtSocket.connected_signal.connect(self.onServerConnected)
-
-        #Initialising all pages/screens
-        self.homePageInstance.connect()  
-        self.menuPageInstance.connect()  
-        self.calibrationPageInstance.connect()  
-        self.getFilesAndInfoInstance.connect()  
-        self.printLocationScreenInstance.connect()  
-        self.controlScreenInstance.connect()
-        self.changeFilamentRoutineInstance.connect()
-        self.networkingInstance.connect()
-        self.displaySettingsInstance.connect()
-        self.softwareUpdatePageInstance.connect()
-        self.firmwareUpdatePageInstance.connect()
-        self.filamentSensorInstance.connect()
-        self.settingsPageInstance.connect()
-        self.printerStatusInstance.connect()
 
         #  # Lock settings
         #     if not Development:
@@ -319,72 +266,18 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
         
         log_info("Starting mainUI init.")
         
-        self.filamentSensorInstance.isFilamentSensorInstalled()
+        self.isFilamentSensorInstalled()
         # if not self.__timelapse_enabled:
         #     return
         # if self.__timelapse_started:
         #     return
         try:
-            response = self.octopiclient.isFailureDetected()
+            response = octopiclient.isFailureDetected()
             if response["canRestore"] is True:
-                self.printRestoreInstance.printRestoreMessageBox(response["file"])
+                self.printRestoreMessageBox(response["file"])
             else:
-                self.firmwareUpdatePageInstance.firmwareUpdateCheck()
+                self.firmwareUpdateCheck()
         except:
             print ("error on Server Connected")
             pass
 
-
-class ThreadSanityCheck(QtCore.QThread):
-
-    loaded_signal = QtCore.pyqtSignal()
-    startup_error_signal = QtCore.pyqtSignal()
-
-    def __init__(self, logger = None, virtual=False):
-        
-        log_info("Starting sanity check init.")
-        
-        super(ThreadSanityCheck, self).__init__()
-        self.octopiclient = octopiclient
-        self.MKSPort = None
-        self.virtual = virtual
-        if not Development:
-            self._logger = logger
-
-    def run(self):
-        global octopiclient
-        self.shutdown_flag = False
-        # get the first value of t1 (runtime check)
-        uptime = 0
-        # keep trying untill octoprint connects
-        while (True):
-            # Start an object instance of octopiAPI
-            try:
-                if (uptime > 30):
-                    self.shutdown_flag = True
-                    self.startup_error_signal.emit()
-                    break
-                octopiclient = octoprintAPI(ip, apiKey)
-                if not self.virtual:
-                    result = subprocess.Popen("dmesg | grep 'ttyUSB'", stdout=subprocess.PIPE, shell=True).communicate()[0]
-                    result = result.split(b'\n')  # each ssid and pass from an item in a list ([ssid pass,ssid paas])
-                    result = [s.strip() for s in result]
-                    for line in result:
-                        if b'FTDI' in line:
-                            self.MKSPort = line[line.index(b'ttyUSB'):line.index(b'ttyUSB') + 7].decode('utf-8')
-                            print(self.MKSPort)
-                        if b'ch34' in line:
-                            self.MKSPort = line[line.index(b'ttyUSB'):line.index(b'ttyUSB') + 7].decode('utf-8')
-                            print(self.MKSPort)
-
-                    if not self.MKSPort:
-                        self.octopiclient.connectPrinter(port="VIRTUAL", baudrate=115200)
-                    else:
-                        self.octopiclient.connectPrinter(port="/dev/" + self.MKSPort, baudrate=115200)
-                break
-            except Exception as e:
-                time.sleep(1)
-                uptime = uptime + 1
-                print("Not Connected!")
-        if not self.shutdown_flag:
-            self.loaded_signal.emit()

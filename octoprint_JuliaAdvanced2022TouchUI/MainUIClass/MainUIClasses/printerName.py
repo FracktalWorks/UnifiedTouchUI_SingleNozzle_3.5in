@@ -3,6 +3,8 @@ import os
 from PyQt5 import QtCore
 import sys
 from MainUIClass.config import Development
+import mainGUI
+from MainUIClass.MainUIClasses.dialog_methods import askAndReboot
 
 if not Development:
     json_file_name = '/home/pi/printer_name.json'
@@ -13,25 +15,24 @@ else:
     
 allowed_names = ["Julia Advanced", "Julia Extended", "Julia Pro Single Nozzle"]
 
-class printerName:
-    def __init__(self, MainUIObj):
-        self.MainUIObj = MainUIObj
+class printerName(mainGUI.Ui_MainWindow):
+    def __init__(self):
         self.initialisePrinterNameJson()
         print(self.getPrinterName())
-
-    def connect(self):
-        self.MainUIObj.enterPrinterName.clicked.connect(self.enterPrinterName_function)
+        self.enterPrinterName.clicked.connect(self.enterPrinterName_function)
+        super().__init__()
 
     def enterPrinterName_function(self):
         temp_printerName = self.getPrinterName()
-        if temp_printerName != self.MainUIObj.printerNameComboBox.currentText():
-            self.setPrinterName(self.MainUIObj.printerNameComboBox.currentText())
+        if temp_printerName != self.printerNameComboBox.currentText():
+            self.setPrinterName(self.printerNameComboBox.currentText())
             if Development:
                 sys.exit()
             else:
-                if not self.MainUIObj.homePageInstance.askAndReboot("Reboot to reflect changes?"):
+                if not askAndReboot(self, "Reboot to reflect changes?"):
                     self.setPrinterName(temp_printerName)
 
+    @classmethod
     def getPrinterName(self):
         try:
             with open(json_file_name, 'r') as file:
@@ -54,7 +55,7 @@ class printerName:
                 except (FileNotFoundError, json.JSONDecodeError):
                     self.setPrinterName("Julia Advanced")
         except Exception as e:
-            self.MainUIObj._logger.error(e)
+            self._logger.error(e)
 
     def setPrinterName(self, name):
         data = {"printer_name": name}
@@ -66,6 +67,6 @@ class printerName:
 
     def setPrinterNameComboBox(self):
         current_printer_name = self.getPrinterName()
-        index = self.MainUIObj.printerNameComboBox.findText(current_printer_name, QtCore.Qt.MatchFixedString)
+        index = self.printerNameComboBox.findText(current_printer_name, QtCore.Qt.MatchFixedString)
         if index != -1:  # Check if a valid index was found
-            self.MainUIObj.printerNameComboBox.setCurrentIndex(index)
+            self.printerNameComboBox.setCurrentIndex(index)

@@ -4,26 +4,26 @@ import dialog
 from MainUIClass.MainUIClasses.networking_package.wifiSettingsPage import ThreadRestartNetworking
 from MainUIClass.network_utils import *
 import re
+import mainGUI
+from MainUIClass.MainUIClasses.lineEdits import lineEdits
 
-class ethernetSettingsPage:
-    def __init__(self, MainUIObj):
-        self.MainUIObj = MainUIObj
-
-    def connect(self):
-        self.MainUIObj.ethStaticCheckBox.stateChanged.connect(self.ethStaticChanged)
-        self.MainUIObj.ethStaticCheckBox.stateChanged.connect(lambda: self.MainUIObj.ethStaticSettings.setVisible(self.MainUIObj.ethStaticCheckBox.isChecked()))
-        self.MainUIObj.ethStaticIpKeyboardButton.pressed.connect(lambda: self.MainUIObj.ethShowKeyboard(self.MainUIObj.ethStaticIpLineEdit))
-        self.MainUIObj.ethStaticGatewayKeyboardButton.pressed.connect(lambda: self.MainUIObj.ethShowKeyboard(self.MainUIObj.ethStaticGatewayLineEdit))
-        self.MainUIObj.ethSettingsDoneButton.pressed.connect(self.ethSaveStaticNetworkInfo)
-        self.MainUIObj.ethSettingsCancelButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.networkSettingsPage))
+class ethernetSettingsPage(mainGUI.Ui_MainWindow, lineEdits):
+    def __init__(self):
+        super().__init__()
+        self.ethStaticCheckBox.stateChanged.connect(self.ethStaticChanged)
+        self.ethStaticCheckBox.stateChanged.connect(lambda: self.ethStaticSettings.setVisible(self.ethStaticCheckBox.isChecked()))
+        self.ethStaticIpKeyboardButton.pressed.connect(lambda: self.ethShowKeyboard(self.ethStaticIpLineEdit))
+        self.ethStaticGatewayKeyboardButton.pressed.connect(lambda: self.ethShowKeyboard(self.ethStaticGatewayLineEdit))
+        self.ethSettingsDoneButton.pressed.connect(self.ethSaveStaticNetworkInfo)
+        self.ethSettingsCancelButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.networkSettingsPage))
 
     def ethSettings(self):
-        self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.ethSettingsPage)
+        self.stackedWidget.setCurrentWidget(self.ethSettingsPage)
         self.ethNetworkInfo()
 
     def ethStaticChanged(self, state):
-        self.MainUIObj.ethStaticSettings.setVisible(self.MainUIObj.ethStaticCheckBox.isChecked())
-        self.MainUIObj.ethStaticSettings.setEnabled(self.MainUIObj.ethStaticCheckBox.isChecked())
+        self.ethStaticSettings.setVisible(self.ethStaticCheckBox.isChecked())
+        self.ethStaticSettings.setEnabled(self.ethStaticCheckBox.isChecked())
 
     def ethNetworkInfo(self):
         txt = subprocess.Popen("cat /etc/dhcpcd.conf", stdout=subprocess.PIPE, shell=True).communicate()[0]
@@ -50,21 +50,21 @@ class ethernetSettingsPage:
                 if mtEthGateway and len(mtEthGateway.groups()) == 2:
                     txtEthGateway = mtEthGateway.group(1)
 
-        self.MainUIObj.ethStaticCheckBox.setChecked(cbStaticEnabled)
-        self.MainUIObj.ethStaticSettings.setVisible(cbStaticEnabled)
-        self.MainUIObj.ethStaticIpLineEdit.setText(txtEthAddress)
-        self.MainUIObj.ethStaticGatewayLineEdit.setText(txtEthGateway)
+        self.ethStaticCheckBox.setChecked(cbStaticEnabled)
+        self.ethStaticSettings.setVisible(cbStaticEnabled)
+        self.ethStaticIpLineEdit.setText(txtEthAddress)
+        self.ethStaticGatewayLineEdit.setText(txtEthGateway)
 
     def isIpErr(self, ip):
         return (re.search(r"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$", ip) is None)
 
     def showIpErr(self, var):
-        return dialog.WarningOk(self.MainUIObj, "Invalid input: {0}".format(var))
+        return dialog.WarningOk(self, "Invalid input: {0}".format(var))
 
     def ethSaveStaticNetworkInfo(self):
-        cbStaticEnabled = self.MainUIObj.ethStaticCheckBox.isChecked()
-        txtEthAddress = str(self.MainUIObj.ethStaticIpLineEdit.text())
-        txtEthGateway = str(self.MainUIObj.ethStaticGatewayLineEdit.text())
+        cbStaticEnabled = self.ethStaticCheckBox.isChecked()
+        txtEthAddress = str(self.ethStaticIpLineEdit.text())
+        txtEthGateway = str(self.ethStaticGatewayLineEdit.text())
 
         if cbStaticEnabled:
             if self.isIpErr(txtEthAddress):
@@ -89,26 +89,26 @@ class ethernetSettingsPage:
             file.write(res)
             file.close()
         except:
-            if dialog.WarningOk(self.MainUIObj, "Failed to change Ethernet Interface configuration."):
+            if dialog.WarningOk(self, "Failed to change Ethernet Interface configuration."):
                 pass
 
-        self.MainUIObj.restartEthThreadObject = ThreadRestartNetworking(ThreadRestartNetworking.ETH)
-        self.MainUIObj.restartEthThreadObject.signal.connect(self.ethReconnectResult)
-        self.MainUIObj.restartEthThreadObject.start()
-        self.MainUIObj.ethMessageBox = dialog.dialog(self.MainUIObj,
+        self.restartEthThreadObject = ThreadRestartNetworking(ThreadRestartNetworking.ETH)
+        self.restartEthThreadObject.signal.connect(self.ethReconnectResult)
+        self.restartEthThreadObject.start()
+        self.ethMessageBox = dialog.dialog(self,
                                                "Restarting networking, please wait...",
                                                icon="exclamation-mark.png",
                                                buttons=QtWidgets.QMessageBox.Cancel)
-        if self.MainUIObj.ethMessageBox.exec_() in {QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Cancel}:
-            self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.networkSettingsPage)
+        if self.ethMessageBox.exec_() in {QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Cancel}:
+            self.stackedWidget.setCurrentWidget(self.networkSettingsPage)
 
     def ethReconnectResult(self, x):
-        self.MainUIObj.ethMessageBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self.ethMessageBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
         if x is not None:
-            self.MainUIObj.ethMessageBox.setLocalIcon('success.png')
-            self.MainUIObj.ethMessageBox.setText('Connected, IP: ' + x)
+            self.ethMessageBox.setLocalIcon('success.png')
+            self.ethMessageBox.setText('Connected, IP: ' + x)
         else:
-            self.MainUIObj.ethMessageBox.setText("Not able to connect to Ethernet")
+            self.ethMessageBox.setText("Not able to connect to Ethernet")
 
     def ethShowKeyboard(self, textbox):
-        self.MainUIObj.startKeyboard(textbox.setText, onlyNumeric=True, noSpace=True, text=str(textbox.text()))
+        self.startKeyboard(textbox.setText, onlyNumeric=True, noSpace=True, text=str(textbox.text()))

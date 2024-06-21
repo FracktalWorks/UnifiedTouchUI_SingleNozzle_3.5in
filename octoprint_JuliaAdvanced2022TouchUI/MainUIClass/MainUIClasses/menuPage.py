@@ -1,10 +1,10 @@
-class menuPage:
-    def __init__(self, MainUIObj):
-        self.MainUIObj = MainUIObj
+import mainGUI
+from MainUIClass.MainUIClasses import controlScreen
 
-    def connect(self):
-        self.MainUIObj.menuBackButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.homePage))
-        self.MainUIObj.menuControlButton.pressed.connect(self.MainUIObj.controlScreenInstance.control)
-        self.MainUIObj.menuPrintButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printLocationPage))
-        self.MainUIObj.menuCalibrateButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.calibratePage))
-        self.MainUIObj.menuSettingsButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.settingsPage))
+class menuPage(mainGUI.Ui_MainWindow):
+    def __init__(self, MainUIObj):
+        self.menuBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.homePage))
+        self.menuControlButton.pressed.connect(controlScreen.control)
+        self.menuPrintButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.printLocationPage))
+        self.menuCalibrateButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.calibratePage))
+        self.menuSettingsButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))

@@ -1,12 +1,57 @@
 from MainUIClass.config import *
 from MainUIClass.socket_qt import *
 from MainUIClass.network_utils import *
-
+import time
 import qrcode
 from PyQt5 import QtGui, QtCore, QtWidgets
 
-from MainUIClass.buzzer_feedback import buzzer
+if not Development:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)  # Use the board numbering scheme
+    GPIO.setwarnings(False)  # Disable GPIO warnings H
 
+
+class BuzzerFeedback(object):
+    def __init__(self, buzzerPin):
+        if not Development:
+            GPIO.cleanup()
+            self.buzzerPin = buzzerPin
+            GPIO.setup(self.buzzerPin, GPIO.OUT)
+            GPIO.output(self.buzzerPin, GPIO.LOW)
+        pass
+
+    @run_async
+    def buzz(self):
+        if not Development:
+            GPIO.output(self.buzzerPin, (GPIO.HIGH))
+            time.sleep(0.005)
+            GPIO.output(self.buzzerPin, GPIO.LOW)
+        pass
+
+buzzer = BuzzerFeedback(12)
+
+'''
+To get the buzzer to beep on button press
+'''
+
+OriginalPushButton = QtGui.QPushButton
+OriginalToolButton = QtGui.QToolButton
+
+
+class QPushButtonFeedback(QtWidgets.QPushButton):
+    def mousePressEvent(self, QMouseEvent):
+        buzzer.buzz()
+        OriginalPushButton.mousePressEvent(self, QMouseEvent)
+
+
+class QToolButtonFeedback(QtWidgets.QToolButton):
+    def mousePressEvent(self, QMouseEvent):
+        buzzer.buzz()
+        OriginalToolButton.mousePressEvent(self, QMouseEvent)
+
+
+QtWidgets.QToolButton = QToolButtonFeedback
+QtWidgets.QPushButton = QPushButtonFeedback
 
 class Image(qrcode.image.base.BaseImage):
     def __init__(self, border, width, box_size):

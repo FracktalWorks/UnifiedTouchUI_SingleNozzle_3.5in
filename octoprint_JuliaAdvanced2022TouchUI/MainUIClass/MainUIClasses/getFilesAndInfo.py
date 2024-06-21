@@ -4,75 +4,77 @@ from datetime import datetime
 from PyQt5 import QtGui, QtCore
 from MainUIClass.config import _fromUtf8
 from hurry.filesize import size
+import mainGUI
+from MainUIClass.MainUIClasses.threads import octopiclient
 
-class getFilesAndInfo:
-    def __init__(self, MainUIObj):
-        self.MainUIObj = MainUIObj
-
-    def connect(self):
+class getFilesAndInfo(mainGUI.Ui_MainWindow):
+    def __init__(self):
         # fileListUSBPage
-        self.MainUIObj.USBStorageBackButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printLocationPage))
-        self.MainUIObj.USBStorageScrollUp.pressed.connect(
-            lambda: self.MainUIObj.fileListWidgetUSB.setCurrentRow(self.MainUIObj.fileListWidgetUSB.currentRow() - 1))
-        self.MainUIObj.USBStorageScrollDown.pressed.connect(
-            lambda: self.MainUIObj.fileListWidgetUSB.setCurrentRow(self.MainUIObj.fileListWidgetUSB.currentRow() + 1))
-        self.MainUIObj.USBStorageSelectButton.pressed.connect(self.printSelectedUSB)
-        self.MainUIObj.USBStorageSaveButton.pressed.connect(lambda: self.transferToLocal(prnt=False))
+        self.USBStorageBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.printLocationPage))
+        self.USBStorageScrollUp.pressed.connect(
+            lambda: self.fileListWidgetUSB.setCurrentRow(self.fileListWidgetUSB.currentRow() - 1))
+        self.USBStorageScrollDown.pressed.connect(
+            lambda: self.fileListWidgetUSB.setCurrentRow(self.fileListWidgetUSB.currentRow() + 1))
+        self.USBStorageSelectButton.pressed.connect(self.printSelectedUSB)
+        self.USBStorageSaveButton.pressed.connect(lambda: self.transferToLocal(prnt=False))
 
         # fileListLocalScreen
-        self.MainUIObj.localStorageBackButton.pressed.connect(lambda: self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printLocationPage))
-        self.MainUIObj.localStorageScrollUp.pressed.connect(
-            lambda: self.MainUIObj.fileListWidget.setCurrentRow(self.MainUIObj.fileListWidget.currentRow() - 1))
-        self.MainUIObj.localStorageScrollDown.pressed.connect(
-            lambda: self.MainUIObj.fileListWidget.setCurrentRow(self.MainUIObj.fileListWidget.currentRow() + 1))
-        self.MainUIObj.localStorageSelectButton.pressed.connect(self.printSelectedLocal)
-        self.MainUIObj.localStorageDeleteButton.pressed.connect(self.deleteItem)
+        self.localStorageBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.printLocationPage))
+        self.localStorageScrollUp.pressed.connect(
+            lambda: self.fileListWidget.setCurrentRow(self.fileListWidget.currentRow() - 1))
+        self.localStorageScrollDown.pressed.connect(
+            lambda: self.fileListWidget.setCurrentRow(self.fileListWidget.currentRow() + 1))
+        self.localStorageSelectButton.pressed.connect(self.printSelectedLocal)
+        self.localStorageDeleteButton.pressed.connect(self.deleteItem)
 
         # selectedFileLocalScreen
-        self.MainUIObj.fileSelectedBackButton.pressed.connect(self.fileListLocal)
-        self.MainUIObj.fileSelectedPrintButton.pressed.connect(self.printFile)
+        self.fileSelectedBackButton.pressed.connect(self.fileListLocal)
+        self.fileSelectedPrintButton.pressed.connect(self.printFile)
 
         # selectedFile USB Screen
-        self.MainUIObj.fileSelectedUSBBackButton.pressed.connect(self.fileListUSB)
-        self.MainUIObj.fileSelectedUSBTransferButton.pressed.connect(lambda: self.transferToLocal(prnt=False))
-        self.MainUIObj.fileSelectedUSBPrintButton.pressed.connect(lambda: self.transferToLocal(prnt=True))
+        self.fileSelectedUSBBackButton.pressed.connect(self.fileListUSB)
+        self.fileSelectedUSBTransferButton.pressed.connect(lambda: self.transferToLocal(prnt=False))
+        self.fileSelectedUSBPrintButton.pressed.connect(lambda: self.transferToLocal(prnt=True))
+        super().__init__()
 
+    @classmethod
     def fileListLocal(self):
         '''
         Gets the file list from octoprint server, displays it on the list, as well as
         sets the stacked widget page to the file list page
         '''
-        self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.fileListLocalPage)
+        self.stackedWidget.setCurrentWidget(self.fileListLocalPage)
         files = []
-        for file in self.MainUIObj.octopiclient.retrieveFileInformation()['files']:
+        for file in octopiclient.retrieveFileInformation()['files']:
             if file["type"] == "machinecode":
                 files.append(file)
 
-        self.MainUIObj.fileListWidget.clear()
+        self.fileListWidget.clear()
         files.sort(key=lambda d: d['date'], reverse=True)
         # for item in [f['name'] for f in files] :
         #     self.fileListWidget.addItem(item)
         for f in files:
             if ".gcode" in f['name']:
-                self.MainUIObj.fileListWidget.addItem(f['name'])
+                self.fileListWidget.addItem(f['name'])
         #self.fileListWidget.addItems([f['name'] for f in files])
-        self.MainUIObj.fileListWidget.setCurrentRow(0)
+        self.fileListWidget.setCurrentRow(0)
 
+    @classmethod
     def fileListUSB(self):
         '''
         Gets the file list from octoprint server, displays it on the list, as well as
         sets the stacked widget page to the file list page
         ToDO: Add deapth of folders recursively get all gcodes
         '''
-        self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.fileListUSBPage)
-        self.MainUIObj.fileListWidgetUSB.clear()
+        self.stackedWidget.setCurrentWidget(self.fileListUSBPage)
+        self.fileListWidgetUSB.clear()
         files = subprocess.Popen("ls /media/usb0 | grep gcode", stdout=subprocess.PIPE, shell=True).communicate()[0]
         files = files.decode('utf-8').split('\n')
         files = filter(None, files)
         # for item in files:
         #     self.fileListWidgetUSB.addItem(item)
-        self.MainUIObj.fileListWidgetUSB.addItems(files)
-        self.MainUIObj.fileListWidgetUSB.setCurrentRow(0)
+        self.fileListWidgetUSB.addItems(files)
+        self.fileListWidgetUSB.setCurrentRow(0)
 
     def printSelectedLocal(self):
 
@@ -82,50 +84,50 @@ class getFilesAndInfo:
         This function also selects the file to print from octoprint
         '''
         try:
-            self.MainUIObj.fileSelected.setText(self.MainUIObj.fileListWidget.currentItem().text())
-            self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printSelectedLocalPage)
-            file = self.MainUIObj.octopiclient.retrieveFileInformation(self.MainUIObj.fileListWidget.currentItem().text())
+            self.fileSelected.setText(self.fileListWidget.currentItem().text())
+            self.stackedWidget.setCurrentWidget(self.printSelectedLocalPage)
+            file = octopiclient.retrieveFileInformation(self.fileListWidget.currentItem().text())
             try:
-                self.MainUIObj.fileSizeSelected.setText(size(file['size']))
+                self.fileSizeSelected.setText(size(file['size']))
             except KeyError:
-                self.MainUIObj.fileSizeSelected.setText('-')
+                self.fileSizeSelected.setText('-')
             try:
-                self.MainUIObj.fileDateSelected.setText(datetime.fromtimestamp(file['date']).strftime('%d/%m/%Y %H:%M:%S'))
+                self.fileDateSelected.setText(datetime.fromtimestamp(file['date']).strftime('%d/%m/%Y %H:%M:%S'))
             except KeyError:
-                self.MainUIObj.fileDateSelected.setText('-')
+                self.fileDateSelected.setText('-')
             try:
                 m, s = divmod(file['gcodeAnalysis']['estimatedPrintTime'], 60)
                 h, m = divmod(m, 60)
                 d, h = divmod(h, 24)
-                self.MainUIObj.filePrintTimeSelected.setText("%dd:%dh:%02dm:%02ds" % (d, h, m, s))
+                self.filePrintTimeSelected.setText("%dd:%dh:%02dm:%02ds" % (d, h, m, s))
             except KeyError:
                 self.filePrintTimeSelected.setText('-')
             try:
-                self.MainUIObj.filamentVolumeSelected.setText(
+                self.filamentVolumeSelected.setText(
                     ("%.2f cm" % file['gcodeAnalysis']['filament']['tool0']['volume']) + chr(179))
             except KeyError:
-                self.MainUIObj.filamentVolumeSelected.setText('-')
+                self.filamentVolumeSelected.setText('-')
 
             try:
-                self.MainUIObj.filamentLengthFileSelected.setText(
+                self.filamentLengthFileSelected.setText(
                     "%.2f mm" % file['gcodeAnalysis']['filament']['tool0']['length'])
             except KeyError:
-                self.MainUIObj.filamentLengthFileSelected.setText('-')
+                self.filamentLengthFileSelected.setText('-')
             # uncomment to select the file when selectedd in list
-            # self.MainUIObj.octopiclient.selectFile(self.fileListWidget.currentItem().text(), False)
-            self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printSelectedLocalPage)
+            # octopiclient.selectFile(self.fileListWidget.currentItem().text(), False)
+            self.stackedWidget.setCurrentWidget(self.printSelectedLocalPage)
 
             '''
             If image is available from server, set it, otherwise display default image
             '''
-            img = self.MainUIObj.octopiclient.getImage(self.MainUIObj.fileListWidget.currentItem().text().replace(".gcode", ".png"))
+            img = octopiclient.getImage(self.fileListWidget.currentItem().text().replace(".gcode", ".png"))
             if img:
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(img)
-                self.MainUIObj.printPreviewSelected.setPixmap(pixmap)
+                self.printPreviewSelected.setPixmap(pixmap)
 
             else:
-                self.MainUIObj.printPreviewSelected.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/thumbnail.png")))
+                self.printPreviewSelected.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/thumbnail.png")))
         except:
             print ("Log: Nothing Selected")
             # Set image fot print preview:
@@ -141,8 +143,8 @@ class getFilesAndInfo:
         :return:
         '''
         try:
-            self.MainUIObj.fileSelectedUSBName.setText(self.MainUIObj.fileListWidgetUSB.currentItem().text())
-            self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.printSelectedUSBPage)
+            self.fileSelectedUSBName.setText(self.fileListWidgetUSB.currentItem().text())
+            self.stackedWidget.setCurrentWidget(self.printSelectedUSBPage)
             file = '/media/usb0/' + str(self.fileListWidgetUSB.currentItem().text().replace(".gcode", ".png"))
             try:
                 exists = os.path.exists(file)
@@ -150,9 +152,9 @@ class getFilesAndInfo:
                 exists = False
 
             if exists:
-                self.MainUIObj.printPreviewSelectedUSB.setPixmap(QtGui.QPixmap(_fromUtf8(file)))
+                self.printPreviewSelectedUSB.setPixmap(QtGui.QPixmap(_fromUtf8(file)))
             else:
-                self.MainUIObj.printPreviewSelectedUSB.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/thumbnail.png")))
+                self.printPreviewSelectedUSB.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/thumbnail.png")))
         except:
             print ("Log: Nothing Selected")
 
@@ -164,27 +166,27 @@ class getFilesAndInfo:
         Warning: If the file is read-only, octoprint API for reading the file crashes.
         '''
 
-        file = '/media/usb0/' + str(self.MainUIObj.fileListWidgetUSB.currentItem().text())
+        file = '/media/usb0/' + str(self.fileListWidgetUSB.currentItem().text())
 
         self.uploadThread = ThreadFileUpload(file, prnt=prnt)
         self.uploadThread.start()
         if prnt:
-            self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.homePage)
+            self.stackedWidget.setCurrentWidget(self.homePage)
 
     def printFile(self):
         '''
         Prints the file selected from printSelected()
         '''
-        self.MainUIObj.octopiclient.selectFile(self.MainUIObj.fileListWidget.currentItem().text(), True)
-        # self.MainUIObj.octopiclient.startPrint()
-        self.MainUIObj.stackedWidget.setCurrentWidget(self.MainUIObj.homePage)
+        octopiclient.selectFile(self.fileListWidget.currentItem().text(), True)
+        # octopiclient.startPrint()
+        self.stackedWidget.setCurrentWidget(self.homePage)
 
     def deleteItem(self):
         '''
         Deletes a gcode file, and if associates, its image file from the memory
         '''
-        self.MainUIObj.octopiclient.deleteFile(self.MainUIObj.fileListWidget.currentItem().text())
-        self.MainUIObj.octopiclient.deleteFile(self.MainUIObj.fileListWidget.currentItem().text().replace(".gcode", ".png"))
+        octopiclient.deleteFile(self.fileListWidget.currentItem().text())
+        octopiclient.deleteFile(self.fileListWidget.currentItem().text().replace(".gcode", ".png"))
 
         # delete PNG also
         self.fileListLocal()
@@ -202,10 +204,10 @@ class ThreadFileUpload(QtCore.QThread):
         except:
             exists = False
         if exists:
-            self.MainUIObj.octopiclient.uploadImage(self.file.replace(".gcode", ".png"))
+            octopiclient.uploadImage(self.file.replace(".gcode", ".png"))
 
         if self.prnt:
-            self.MainUIObj.octopiclient.uploadGcode(file=self.file, select=True, prnt=True)
+            octopiclient.uploadGcode(file=self.file, select=True, prnt=True)
         else:
-            self.MainUIObj.octopiclient.uploadGcode(file=self.file, select=False, prnt=False)
+            octopiclient.uploadGcode(file=self.file, select=False, prnt=False)
 
