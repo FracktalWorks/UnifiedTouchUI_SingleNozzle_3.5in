@@ -5,13 +5,20 @@ from MainUIClass.gui_elements import Image
 import dialog
 import os
 import mainGUI
-from MainUIClass.MainUIClasses.threads import octopiclient
 from MainUIClass.MainUIClasses.dialog_methods import askAndReboot, tellAndReboot
 from MainUIClass.config import ip, apiKey
 import requests
+from logger import *
 
 class settingsPage(mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting settings init.")
+        self.octopiclient = None
+        super().__init__()
+
+    def setup(self):
+        from MainUIClass.MainUIClasses.threads import octopiclient
+        self.octopiclient = octopiclient
         self.networkSettingsButton.pressed.connect(
             lambda: self.stackedWidget.setCurrentWidget(self.networkSettingsPage))
         self.displaySettingsButton.pressed.connect(
@@ -26,7 +33,7 @@ class settingsPage(mainGUI.Ui_MainWindow):
         self.restorePrintSettingsButton.pressed.connect(self.restorePrintDefaults)
 
         self.QRCodeBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))
-        super().__init__()
+        
 
     def askAndReboot_settings(self):
         askAndReboot(self)
@@ -39,7 +46,7 @@ class settingsPage(mainGUI.Ui_MainWindow):
         # Firmware version on the MKS https://github.com/FracktalWorks/OctoPrint-JuliaFirmwareUpdater
         self.updateListWidget.addItem(self.getFirmwareVersion())
 
-        data = octopiclient.getSoftwareUpdateInfo()
+        data = self.octopiclient.getSoftwareUpdateInfo()
         if data:
             for item in data["information"]:
                 plugin = data["information"][item]
@@ -72,7 +79,7 @@ class settingsPage(mainGUI.Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.OTAUpdatePage)
 
     def softwareUpdate(self):
-        data = octopiclient.getSoftwareUpdateInfo()
+        data = self.octopiclient.getSoftwareUpdateInfo()
         updateAvailable = False
         if data:
             for item in data["information"]:
@@ -81,7 +88,7 @@ class settingsPage(mainGUI.Ui_MainWindow):
         if updateAvailable:
             print('Update Available')
             if dialog.SuccessYesNo(self, "Update Available! Update Now?", overlay=True):
-                octopiclient.performSoftwareUpdate()
+                self.octopiclient.performSoftwareUpdate()
         else:
             if dialog.SuccessOk(self, "System is Up To Date!", overlay=True):
                 print('Update Unavailable')
@@ -116,8 +123,8 @@ class settingsPage(mainGUI.Ui_MainWindow):
     def restorePrintDefaults(self):
         if dialog.WarningYesNo(self, "Are you sure you want to restore default print settings?\nWarning: Doing so will erase offsets and bed leveling info",
                                 overlay=True):
-            octopiclient.gcode(command='M502')
-            octopiclient.gcode(command='M500')
+            self.octopiclient.gcode(command='M502')
+            self.octopiclient.gcode(command='M500')
 
     def getFirmwareVersion(self):
         try:

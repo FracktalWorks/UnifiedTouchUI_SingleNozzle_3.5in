@@ -1,8 +1,13 @@
 import dialog
 import mainGUI
+from logger import *
 
 class lockSettings(mainGUI.Ui_MainWindow):
-    def __init__(self, MainUIObj):
+    def __init__(self):
+        log_info("Starting lock settings init.")
+        super().__init__()
+
+    def setup(self):
         self.pgLock_pin.textChanged.connect(self.Lock_onPinInputChanged)
 
         self.pgLock_bt1.clicked.connect(lambda: self.Lock_kbAdd("1"))
@@ -17,7 +22,6 @@ class lockSettings(mainGUI.Ui_MainWindow):
         self.pgLock_bt0.clicked.connect(lambda: self.Lock_kbAdd("0"))
         self.pgLock_btBackspace.clicked.connect(lambda: self.pgLock_pin.backspace())
         self.pgLock_btSubmit.clicked.connect(self.Lock_submitPIN)
-        super().__init__()
 
     def Lock_showLock(self):
         self.pgLock_HID.setText(str(self.__packager.hc()))

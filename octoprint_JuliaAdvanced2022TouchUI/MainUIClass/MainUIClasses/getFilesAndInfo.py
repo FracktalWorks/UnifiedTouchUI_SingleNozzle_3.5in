@@ -5,10 +5,17 @@ from PyQt5 import QtGui, QtCore
 from MainUIClass.config import _fromUtf8
 from hurry.filesize import size
 import mainGUI
-from MainUIClass.MainUIClasses.threads import octopiclient
+from logger import *
 
 class getFilesAndInfo(mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting get files init.")
+        self.octopiclient = None
+        super().__init__()
+
+    def setup(self):
+        from MainUIClass.MainUIClasses.threads import octopiclient
+        self.octopiclient = octopiclient
         # fileListUSBPage
         self.USBStorageBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.printLocationPage))
         self.USBStorageScrollUp.pressed.connect(
@@ -35,7 +42,6 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         self.fileSelectedUSBBackButton.pressed.connect(self.fileListUSB)
         self.fileSelectedUSBTransferButton.pressed.connect(lambda: self.transferToLocal(prnt=False))
         self.fileSelectedUSBPrintButton.pressed.connect(lambda: self.transferToLocal(prnt=True))
-        super().__init__()
 
     @classmethod
     def fileListLocal(self):
@@ -45,7 +51,7 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         '''
         self.stackedWidget.setCurrentWidget(self.fileListLocalPage)
         files = []
-        for file in octopiclient.retrieveFileInformation()['files']:
+        for file in self.octopiclient.retrieveFileInformation()['files']:
             if file["type"] == "machinecode":
                 files.append(file)
 
@@ -86,7 +92,7 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         try:
             self.fileSelected.setText(self.fileListWidget.currentItem().text())
             self.stackedWidget.setCurrentWidget(self.printSelectedLocalPage)
-            file = octopiclient.retrieveFileInformation(self.fileListWidget.currentItem().text())
+            file = self.octopiclient.retrieveFileInformation(self.fileListWidget.currentItem().text())
             try:
                 self.fileSizeSelected.setText(size(file['size']))
             except KeyError:
@@ -114,13 +120,13 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
             except KeyError:
                 self.filamentLengthFileSelected.setText('-')
             # uncomment to select the file when selectedd in list
-            # octopiclient.selectFile(self.fileListWidget.currentItem().text(), False)
+            # self.octopiclient.selectFile(self.fileListWidget.currentItem().text(), False)
             self.stackedWidget.setCurrentWidget(self.printSelectedLocalPage)
 
             '''
             If image is available from server, set it, otherwise display default image
             '''
-            img = octopiclient.getImage(self.fileListWidget.currentItem().text().replace(".gcode", ".png"))
+            img = self.octopiclient.getImage(self.fileListWidget.currentItem().text().replace(".gcode", ".png"))
             if img:
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(img)
@@ -177,16 +183,16 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         '''
         Prints the file selected from printSelected()
         '''
-        octopiclient.selectFile(self.fileListWidget.currentItem().text(), True)
-        # octopiclient.startPrint()
+        self.octopiclient.selectFile(self.fileListWidget.currentItem().text(), True)
+        # self.octopiclient.startPrint()
         self.stackedWidget.setCurrentWidget(self.homePage)
 
     def deleteItem(self):
         '''
         Deletes a gcode file, and if associates, its image file from the memory
         '''
-        octopiclient.deleteFile(self.fileListWidget.currentItem().text())
-        octopiclient.deleteFile(self.fileListWidget.currentItem().text().replace(".gcode", ".png"))
+        self.octopiclient.deleteFile(self.fileListWidget.currentItem().text())
+        self.octopiclient.deleteFile(self.fileListWidget.currentItem().text().replace(".gcode", ".png"))
 
         # delete PNG also
         self.fileListLocal()
@@ -204,10 +210,10 @@ class ThreadFileUpload(QtCore.QThread):
         except:
             exists = False
         if exists:
-            octopiclient.uploadImage(self.file.replace(".gcode", ".png"))
+            self.octopiclient.uploadImage(self.file.replace(".gcode", ".png"))
 
         if self.prnt:
-            octopiclient.uploadGcode(file=self.file, select=True, prnt=True)
+            self.octopiclient.uploadGcode(file=self.file, select=True, prnt=True)
         else:
-            octopiclient.uploadGcode(file=self.file, select=False, prnt=False)
+            self.octopiclient.uploadGcode(file=self.file, select=False, prnt=False)
 

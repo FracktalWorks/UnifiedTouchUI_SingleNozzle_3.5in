@@ -6,10 +6,14 @@ from MainUIClass.network_utils import *
 import re
 import mainGUI
 from MainUIClass.MainUIClasses.lineEdits import lineEdits
+from logger import *
 
-class ethernetSettingsPage(mainGUI.Ui_MainWindow, lineEdits):
+class ethernetSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting eth settings init.")
         super().__init__()
+
+    def setup(self):
         self.ethStaticCheckBox.stateChanged.connect(self.ethStaticChanged)
         self.ethStaticCheckBox.stateChanged.connect(lambda: self.ethStaticSettings.setVisible(self.ethStaticCheckBox.isChecked()))
         self.ethStaticIpKeyboardButton.pressed.connect(lambda: self.ethShowKeyboard(self.ethStaticIpLineEdit))

@@ -5,6 +5,7 @@ import sys
 from MainUIClass.config import Development
 import mainGUI
 from MainUIClass.MainUIClasses.dialog_methods import askAndReboot
+from logger import *
 
 if not Development:
     json_file_name = '/home/pi/printer_name.json'
@@ -17,10 +18,13 @@ allowed_names = ["Julia Advanced", "Julia Extended", "Julia Pro Single Nozzle"]
 
 class printerName(mainGUI.Ui_MainWindow):
     def __init__(self):
-        self.initialisePrinterNameJson()
-        print(self.getPrinterName())
-        self.enterPrinterName.clicked.connect(self.enterPrinterName_function)
+        log_info("Starting printer name init.")
         super().__init__()
+
+    def setup(self):
+        self.initialisePrinterNameJson()
+        self.printerName = self.getPrinterName()
+        self.enterPrinterName.clicked.connect(self.enterPrinterName_function)
 
     def enterPrinterName_function(self):
         temp_printerName = self.getPrinterName()

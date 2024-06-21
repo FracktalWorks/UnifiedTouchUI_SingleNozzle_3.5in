@@ -5,13 +5,20 @@ import dialog
 from PyQt5 import QtGui, QtCore
 from MainUIClass.config import _fromUtf8, ip, apiKey
 import styles
-from MainUIClass.MainUIClasses.threads import octopiclient
 import requests
+from logger import *
 
 printerStatusText = None
 
 class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting socket connections init.")
+        self.octopiclient = None
+        super().__init__()
+
+    def setup(self):
+        from MainUIClass.MainUIClasses.threads import octopiclient
+        self.octopiclient = octopiclient
         # Calibrate page
         self.z_probing_failed_signal.connect(self.showProbingFailed)
         self.z_probe_offset_signal.connect(self.updateEEPROMProbeOffset)
@@ -33,7 +40,7 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
         self.update_log_signal.connect(self.softwareUpdateProgressLog)
         self.update_log_result_signal.connect(self.softwareUpdateResult)
         self.update_failed_signal.connect(self.updateFailed)
-        super().__init__()
+        
 
 
     def updateEEPROMProbeOffset(self, offset):
@@ -155,7 +162,7 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
                 if not pause_print or self.stackedWidget.currentWidget() in no_pause_pages:
                     if dialog.WarningOk(self, "Door opened"):
                         return
-                octopiclient.pausePrint()
+                self.octopiclient.pausePrint()
                 if dialog.WarningOk(self, "Door opened. Print paused.", overlay=True):
                     return
             else:
@@ -213,7 +220,7 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
                     self.stackedWidget.setCurrentWidget(self.changeFilamentExtrudePage)
                 else:
                     self.stackedWidget.setCurrentWidget(self.changeFilamentRetractPage)
-                    octopiclient.extrude(10)  # extrudes some amount of filament to prevent plugging
+                    self.octopiclient.extrude(10)  # extrudes some amount of filament to prevent plugging
 
             self.changeFilamentProgress.setValue(int(temperature['tool0Actual']))
 
@@ -262,7 +269,7 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
             '''
             if self.currentImage != self.currentFile:
                 self.currentImage = self.currentFile
-                img = octopiclient.getImage(file['job']['file']['name'].replace(".gcode", ".png"))
+                img = self.octopiclient.getImage(file['job']['file']['name'].replace(".gcode", ".png"))
                 if img:
                     pixmap = QtGui.QPixmap()
                     pixmap.loadFromData(img)
@@ -301,7 +308,7 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
             self.menuPrintButton.setDisabled(True)
             # if not Development:
             #     if not self.__timelapse_enabled:
-            #         octopiclient.cancelPrint()
+            #         self.octopiclient.cancelPrint()
             #         self.coolDownAction()
         elif status == "Paused":
             self.playPauseButton.setChecked(False)

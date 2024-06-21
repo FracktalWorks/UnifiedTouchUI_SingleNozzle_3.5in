@@ -12,12 +12,10 @@ class ThreadSanityCheck(QtCore.QThread):
     loaded_signal = QtCore.pyqtSignal()
     startup_error_signal = QtCore.pyqtSignal()
 
-    def __init__(self, logger = None, virtual=False):
-        
+    def __init__(self, logger = None, virtual=False):        
         log_info("Starting sanity check init.")
         
         super(ThreadSanityCheck, self).__init__()
-        octopiclient = octopiclient
         self.MKSPort = None
         self.virtual = virtual
         if not Development:

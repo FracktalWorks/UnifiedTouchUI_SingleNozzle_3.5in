@@ -2,11 +2,16 @@ import requests
 from MainUIClass.config import apiKey, ip
 from PyQt5 import QtGui
 import mainGUI
+from logger import *
 
 class filamentSensor(mainGUI.Ui_MainWindow):
     def __init__(self):
-        self.toggleFilamentSensorButton.clicked.connect(self.toggleFilamentSensor)
+        log_info("Starting filament sensor init.")
         super().__init__()
+
+    def setup(self):
+        self.toggleFilamentSensorButton.clicked.connect(self.toggleFilamentSensor)
+        
 
     def isFilamentSensorInstalled(self):
         success = False

@@ -8,10 +8,14 @@ import mainGUI
 from MainUIClass.decorators import run_async
 from MainUIClass.MainUIClasses.start_keyboard import startKeyboard
 from MainUIClass.MainUIClasses.lineEdits import lineEdits
+from logger import *
 
-class wifiSettingsPage(mainGUI.Ui_MainWindow, lineEdits):
+class wifiSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting wifi settings init.")
         super().__init__()
+
+    def setup(self):
         self.wifiSettingsSSIDKeyboardButton.pressed.connect(
             lambda: startKeyboard(self, self.wifiSettingsComboBox.addItem))
         self.wifiSettingsCancelButton.pressed.connect(

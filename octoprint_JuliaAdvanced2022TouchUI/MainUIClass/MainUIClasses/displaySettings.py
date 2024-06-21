@@ -4,9 +4,14 @@ import subprocess
 from dialog import WarningOk
 import mainGUI
 from MainUIClass.MainUIClasses.dialog_methods import askAndReboot
+from logger import *
 
 class displaySettings(mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting display settings init.")
+        super().__init__()
+
+    def setup(self):
         # Display settings
         self.rotateDisplay.pressed.connect(self.showRotateDisplaySettingsPage)
         self.calibrateTouch.pressed.connect(self.touchCalibration)
@@ -16,7 +21,7 @@ class displaySettings(mainGUI.Ui_MainWindow):
         self.rotateDisplaySettingsDoneButton.pressed.connect(self.saveRotateDisplaySettings)
         self.rotateDisplaySettingsCancelButton.pressed.connect(
             lambda: self.stackedWidget.setCurrentWidget(self.displaySettingsPage))
-        super().__init__()
+        
 
     def touchCalibration(self):
         os.system('sudo /home/pi/setenv.sh')

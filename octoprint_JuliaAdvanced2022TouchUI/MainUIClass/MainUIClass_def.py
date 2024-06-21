@@ -1,4 +1,5 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtWidgets import QMainWindow
 
 from MainUIClass.MainUIClasses.printerName import printerName
 from MainUIClass.MainUIClasses.changeFilamentRoutine import changeFilamentRoutine
@@ -19,22 +20,14 @@ from MainUIClass.MainUIClasses.networking import networking
 from MainUIClass.MainUIClasses.threads import ThreadSanityCheck
 from MainUIClass.MainUIClasses.lineEdits import lineEdits
 
-import mainGUI
-
 from MainUIClass.config import _fromUtf8, setCalibrationPosition, Development
 import logging
 import styles
 from MainUIClass.socket_qt import QtWebsocket
-from MainUIClass.MainUIClasses.threads import octopiclient
-from MainUIClass.gui_elements import ClickableLineEdit
-
 from logger import *
-
-# from MainUIClass.import_helper import load_classes      #used to import all classes at runtime
-
 import dialog
 
-class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, settingsPage, settingsPage, softwareUpdatePage, calibrationPage, networking):
+class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, settingsPage, softwareUpdatePage, calibrationPage, networking, lineEdits):
     
     def __init__(self):
 
@@ -43,10 +36,11 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, print
         '''
         This method gets called when an object of type MainUIClass is defined
         '''
+        log_info("Initialising all.")
+        super(MainUIClass, self).__init__()
+        log_info("Done.")
 
-        QtWidgets.QMainWindow.__init__(MainUIClass, self)
-        super().__init__()
- 
+        
         if not Development:
             formatter = logging.Formatter("%(asctime)s %(message)s")
             self._logger = logging.getLogger("TouchUI")
@@ -81,6 +75,8 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, print
             # else:
             self.sanityCheck = ThreadSanityCheck(virtual=False)
             self.sanityCheck.start()
+            from MainUIClass.MainUIClasses.threads import octopiclient
+            self.octopiclient = octopiclient
             self.sanityCheck.loaded_signal.connect(self.proceed)
             self.sanityCheck.startup_error_signal.connect(self.handleStartupError)
 
@@ -104,6 +100,11 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, print
         super(MainUIClass, self).setupUi(MainWindow)
 
         self.menuCartButton.setDisabled(True)
+
+        log_info("Setup printer name start.")
+        printerName.setup(self)
+        print(self.printerName)
+        log_info("setup printer name done.")
 
         self.setPrinterNameComboBox()
         setCalibrationPosition(self)
@@ -243,6 +244,8 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, print
         
         log_info("set actions")
         
+        printerName.setup(self)
+        calibrationPage.setup(self)
 
         '''
         defines all the Slots and Button events.
@@ -264,7 +267,7 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, print
 
     def onServerConnected(self):
         
-        log_info("Starting mainUI init.")
+        log_info("Starting onServerConnected init.")
         
         self.isFilamentSensorInstalled()
         # if not self.__timelapse_enabled:
@@ -272,12 +275,12 @@ class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow, lineEdits, print
         # if self.__timelapse_started:
         #     return
         try:
-            response = octopiclient.isFailureDetected()
+            response = self.octopiclient.isFailureDetected()
             if response["canRestore"] is True:
                 self.printRestoreMessageBox(response["file"])
             else:
                 self.firmwareUpdateCheck()
-        except:
-            print ("error on Server Connected")
+        except Exception as e:
+            print ("error on Server Connected: " + str(e))
             pass
 

@@ -2,14 +2,20 @@ from MainUIClass.config import getCalibrationPosition
 from PyQt5 import QtGui
 import mainGUI
 from MainUIClass.MainUIClasses.dialog_methods import tellAndReboot
-from MainUIClass.MainUIClasses.threads import octopiclient
 from MainUIClass.MainUIClasses import printerName
+from logger import *
 
 class calibrationPage(mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting calibration init.")
+        self.octopiclient = None
+        super().__init__()
+        
+    def setup(self):
+        from MainUIClass.MainUIClasses.threads import octopiclient
+        self.octopiclient = octopiclient
         self.printerName = printerName.getPrinterName(self)
         self.calibrationPosition = getCalibrationPosition(self)
-
         self.calibrateBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.MenuPage))
         self.nozzleOffsetButton.pressed.connect(self.nozzleOffset)
         # the -ve sign is such that its converted to home offset and not just distance between nozzle and bed
@@ -36,8 +42,8 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         # self.quickStep5NextButton.clicked.connect(self.quickStep6)
         # self.quickStep6NextButton.clicked.connect(self.doneStep)
 
-        # self.moveZPCalibrateButton.pressed.connect(lambda: octopiclient.jog(z=-0.05))
-        # self.moveZPCalibrateButton.pressed.connect(lambda: octopiclient.jog(z=0.05))
+        # self.moveZPCalibrateButton.pressed.connect(lambda: self.octopiclient.jog(z=-0.05))
+        # self.moveZPCalibrateButton.pressed.connect(lambda: self.octopiclient.jog(z=0.05))
         self.quickStep1CancelButton.pressed.connect(self.cancelStep)
         self.quickStep2CancelButton.pressed.connect(self.cancelStep)
         self.quickStep3CancelButton.pressed.connect(self.cancelStep)
@@ -46,7 +52,7 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         # self.quickStep6CancelButton.pressed.connect(self.cancelStep)
         self.nozzleOffsetSetButton.pressed.connect(
                     lambda: self.setZProbeOffset(self.nozzleOffsetDoubleSpinBox.value()))
-        super().__init__()
+
 
     def setZProbeOffset(self, offset):
         '''
@@ -55,8 +61,8 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         #TODO can make this simpler, asset the offset value to string float to begin with instead of doing confitionals
         '''
 
-        octopiclient.gcode(command='M851 Z{}'.format(offset))
-        octopiclient.gcode(command='M500')
+        self.octopiclient.gcode(command='M851 Z{}'.format(offset))
+        self.octopiclient.gcode(command='M500')
 
     def setZHomeOffset(self, offset, setOffset=False):
         '''
@@ -70,20 +76,20 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         '''
 
         if self.setHomeOffsetBool:
-            octopiclient.gcode(command='M206 Z{}'.format(-float(offset)))
+            self.octopiclient.gcode(command='M206 Z{}'.format(-float(offset)))
             self.setHomeOffsetBool = False
-            octopiclient.gcode(command='M500')
+            self.octopiclient.gcode(command='M500')
             # save in EEPROM
         if setOffset:    # When the offset needs to be set from spinbox value
-            octopiclient.gcode(command='M206 Z{}'.format(-offset))
-            octopiclient.gcode(command='M500')
+            self.octopiclient.gcode(command='M206 Z{}'.format(-offset))
+            self.octopiclient.gcode(command='M500')
 
     def nozzleOffset(self):
         '''
         Updates the value of M206 Z in the nozzle offset spinbox. Sends M503 so that the pritner returns the value as a websocket calback
         :return:
         '''
-        octopiclient.gcode(command='M503')
+        self.octopiclient.gcode(command='M503')
         self.stackedWidget.setCurrentWidget(self.nozzleOffsetPage)
 
     def quickStep1(self):
@@ -95,11 +101,11 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         :return:
         '''
 
-        octopiclient.gcode(command='M503')
-        octopiclient.gcode(command='M420 S0')
-        octopiclient.gcode(command='M206 Z0')
-        octopiclient.home(['x', 'y', 'z'])
-        octopiclient.jog(x=100, y=100, z=15, absolute=True, speed=1500)
+        self.octopiclient.gcode(command='M503')
+        self.octopiclient.gcode(command='M420 S0')
+        self.octopiclient.gcode(command='M206 Z0')
+        self.octopiclient.home(['x', 'y', 'z'])
+        self.octopiclient.jog(x=100, y=100, z=15, absolute=True, speed=1500)
         self.stackedWidget.setCurrentWidget(self.quickStep1Page)
 
     def quickStep2(self):
@@ -119,8 +125,8 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         :return:
         '''
         self.stackedWidget.setCurrentWidget(self.quickStep3Page)
-        octopiclient.jog(x=self.calibrationPosition['X1'], y=self.calibrationPosition['Y1'], absolute=True, speed=9000)
-        octopiclient.jog(z=0, absolute=True, speed=1500)
+        self.octopiclient.jog(x=self.calibrationPosition['X1'], y=self.calibrationPosition['Y1'], absolute=True, speed=9000)
+        self.octopiclient.jog(z=0, absolute=True, speed=1500)
         if self.printerName != "Julia Pro Single Nozzle":
             self.movie1.stop()
             self.movie2 = QtGui.QMovie("templates/img/calibration/calib2.gif")
@@ -132,9 +138,9 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         levels second leveling position
         '''
         self.stackedWidget.setCurrentWidget(self.quickStep4Page)
-        octopiclient.jog(z=10, absolute=True, speed=1500)
-        octopiclient.jog(x=self.calibrationPosition['X2'], y=self.calibrationPosition['Y2'], absolute=True, speed=9000)
-        octopiclient.jog(z=0, absolute=True, speed=1500)
+        self.octopiclient.jog(z=10, absolute=True, speed=1500)
+        self.octopiclient.jog(x=self.calibrationPosition['X2'], y=self.calibrationPosition['Y2'], absolute=True, speed=9000)
+        self.octopiclient.jog(z=0, absolute=True, speed=1500)
         if self.printerName != "Julia Pro Single Nozzle":
             self.movie2.stop()
             self.movie3 = QtGui.QMovie("templates/img/calibration/calib3.gif")
@@ -147,9 +153,9 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         :return:
         '''
         self.stackedWidget.setCurrentWidget(self.quickStep5Page)
-        octopiclient.jog(z=10, absolute=True, speed=1500)
-        octopiclient.jog(x=self.calibrationPosition['X3'], y=self.calibrationPosition['Y3'], absolute=True, speed=9000)
-        octopiclient.jog(z=0, absolute=True, speed=1500)
+        self.octopiclient.jog(z=10, absolute=True, speed=1500)
+        self.octopiclient.jog(x=self.calibrationPosition['X3'], y=self.calibrationPosition['Y3'], absolute=True, speed=9000)
+        self.octopiclient.jog(z=0, absolute=True, speed=1500)
         if self.printerName != "Julia Pro Single Nozzle":
             self.movie3.stop()
             self.movie4 = QtGui.QMovie("templates/img/calibration/calib4.gif")
@@ -161,8 +167,8 @@ class calibrationPage(mainGUI.Ui_MainWindow):
     #     Performs Auto bed Leveiling, required for Klipper
     #     '''
     #     self.stackedWidget.setCurrentWidget(self.quickStep6Page)
-    #     octopiclient.gcode(command='M190 S70')
-    #     octopiclient.gcode(command='G29')
+    #     self.octopiclient.gcode(command='M190 S70')
+    #     self.octopiclient.gcode(command='G29')
 
     def doneStep(self):
         '''
@@ -172,11 +178,11 @@ class calibrationPage(mainGUI.Ui_MainWindow):
 
         self.stackedWidget.setCurrentWidget(self.calibratePage)
         self.movie4.stop()
-        octopiclient.gcode(command='M501')
-        octopiclient.home(['x', 'y', 'z'])
+        self.octopiclient.gcode(command='M501')
+        self.octopiclient.home(['x', 'y', 'z'])
 
     def cancelStep(self):
-        octopiclient.gcode(command='M501')
+        self.octopiclient.gcode(command='M501')
         self.stackedWidget.setCurrentWidget(self.calibratePage)
         try:
             self.movie1.stop()

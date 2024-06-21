@@ -34,8 +34,8 @@ buzzer = BuzzerFeedback(12)
 To get the buzzer to beep on button press
 '''
 
-OriginalPushButton = QtGui.QPushButton
-OriginalToolButton = QtGui.QToolButton
+OriginalPushButton = QtWidgets.QPushButton
+OriginalToolButton = QtWidgets.QToolButton
 
 
 class QPushButtonFeedback(QtWidgets.QPushButton):

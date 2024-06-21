@@ -1,16 +1,15 @@
 from MainUIClass.MainUIClasses.networking_package.wifiSettingsPage import wifiSettingsPage
 from MainUIClass.MainUIClasses.networking_package.ethernetSettingsPage import ethernetSettingsPage
+from logger import *
 
 class networking(wifiSettingsPage, ethernetSettingsPage):
-    def __init__(self, MainUIObj):
-        self = MainUIObj
-        wifiSettingsPage.__init__(self)
-        ethernetSettingsPage.__init__(self)
+    def __init__(self):
+        log_info("Starting networking init.")
         super().__init__()
 
-    def connect(self):
-        wifiSettingsPage.connect(self)
-        ethernetSettingsPage.connect(self)
+    def setup(self):
+        wifiSettingsPage.setup(self)
+        ethernetSettingsPage.setup(self)
 
         #network settings page
         self.networkInfoButton.pressed.connect(self.networkInfo)

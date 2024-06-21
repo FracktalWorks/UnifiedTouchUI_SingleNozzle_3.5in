@@ -3,9 +3,14 @@ from PyQt5 import QtCore, QtGui
 from MainUIClass.config import _fromUtf8
 import styles
 import mainGUI
+from logger import *
 
 class lineEdits(mainGUI.Ui_MainWindow):
     def __init__(self):
+        log_info("Starting line edits init.")
+        super().__init__()
+
+    def setup(self):
         font = QtGui.QFont()
         font.setFamily(_fromUtf8("Gotham"))
         font.setPointSize(15)
@@ -29,4 +34,4 @@ class lineEdits(mainGUI.Ui_MainWindow):
         self.ethStaticGatewayLineEdit.setStyleSheet(styles.textedit)
         self.ethStaticGatewayLineEdit.setObjectName(_fromUtf8("ethStaticGatewayLineEdit"))
 
-        super().__init__()
+        

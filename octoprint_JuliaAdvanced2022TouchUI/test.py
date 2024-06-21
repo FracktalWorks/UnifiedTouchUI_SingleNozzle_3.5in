@@ -1,23 +1,23 @@
-class ParentA:
-    def __init__(self):
-        print('ParentA initialized')
-        super().__init__()  # Call the next class in the MRO
+class Parent1:
+    def __init__(self, arg1):
+        self.arg1 = arg1
+        print(f"Parent1 initialized with arg1: {arg1}")
 
-class ParentB:
+class Parent2:
     def __init__(self):
-        print('ParentB initialized')
-        super().__init__()  # Call the next class in the MRO
+        print("Parent2 initialized")
 
-class ParentC:
+class Parent3:
     def __init__(self):
-        print('ParentC initialized')
-        super().__init__()  # Call the next class in the MRO
+        print("Parent3 initialized")
 
-class Child(ParentA, ParentB, ParentC):
-    def __init__(self):
-        print('Child initializing')
-        super().__init__()  # Call the __init__ methods of the parents
-        print('Child initialized')
+class Child(Parent1, Parent2, Parent3):
+    def __init__(self, arg1):
+        Parent1.__init__(self, arg1)  # Initialize Parent1 with arg1
+        print("extra")
+        Parent2.__init__(self)  # Initialize Parent2 without arguments
+        Parent3.__init__(self)  # Initialize Parent3 without arguments
+        print("Child initialized")
 
-# Create an instance of Child class
-child_instance = Child()
+# Example of creating an instance of Child
+child_instance = Child(10)
