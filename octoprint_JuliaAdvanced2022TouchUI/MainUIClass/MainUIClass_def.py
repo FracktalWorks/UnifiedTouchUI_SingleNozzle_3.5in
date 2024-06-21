@@ -21,8 +21,6 @@ from logger import *
 import dialog
 
 class MainUIClass(QtWidgets.QMainWindow, mainGUI.Ui_MainWindow):
-
-    
     
     def __init__(self):
 
