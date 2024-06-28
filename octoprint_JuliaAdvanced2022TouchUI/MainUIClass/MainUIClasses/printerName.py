@@ -36,15 +36,6 @@ class printerName(mainGUI.Ui_MainWindow):
                 if not askAndReboot(self, "Reboot to reflect changes?"):
                     self.setPrinterName(temp_printerName)
 
-    @classmethod
-    def getPrinterName(self):
-        try:
-            with open(json_file_name, 'r') as file:
-                data = json.load(file)
-                return data.get('printer_name', 'Julia Advanced')  # Default to 'Julia Advanced'
-        except (FileNotFoundError, json.JSONDecodeError):
-            return 'Julia Advanced'
-
     def initialisePrinterNameJson(self):
         try:
             if not os.path.exists(json_file_name):
@@ -74,3 +65,12 @@ class printerName(mainGUI.Ui_MainWindow):
         index = self.printerNameComboBox.findText(current_printer_name, QtCore.Qt.MatchFixedString)
         if index != -1:  # Check if a valid index was found
             self.printerNameComboBox.setCurrentIndex(index)
+
+    @classmethod
+    def getPrinterName(self):
+        try:
+            with open(json_file_name, 'r') as file:
+                data = json.load(file)
+                return data.get('printer_name', 'Julia Advanced')  # Default to 'Julia Advanced'
+        except (FileNotFoundError, json.JSONDecodeError):
+            return 'Julia Advanced'

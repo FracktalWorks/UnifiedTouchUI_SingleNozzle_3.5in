@@ -2,7 +2,7 @@ from MainUIClass.config import getCalibrationPosition
 from PyQt5 import QtGui
 import mainGUI
 from MainUIClass.MainUIClasses.dialog_methods import tellAndReboot
-from MainUIClass.MainUIClasses import printerName
+from MainUIClass.MainUIClasses.printerName import printerName
 from logger import *
 
 class calibrationPage(mainGUI.Ui_MainWindow):
@@ -14,7 +14,7 @@ class calibrationPage(mainGUI.Ui_MainWindow):
     def setup(self):
         from MainUIClass.MainUIClasses.threads import octopiclient
         self.octopiclient = octopiclient
-        self.printerName = printerName.getPrinterName(self)
+        self.printerName = printerName.getPrinterName()
         self.calibrationPosition = getCalibrationPosition(self)
         self.calibrateBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.MenuPage))
         self.nozzleOffsetButton.pressed.connect(self.nozzleOffset)

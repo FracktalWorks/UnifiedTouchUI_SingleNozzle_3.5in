@@ -28,9 +28,9 @@ class octoprintAPI:
         self.apiKey = apiKey
         # Try a simple request to see if the API key works
         # Keep the info, in case we need it later
-        # log_info("Calling version()")
-        # self.version = self.version()
-        # log_info("version function done, exiting init")
+        log_info("Calling version()")
+        self.version = self.version()
+        log_info("Exiting octoprint init")
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # ++++++++++++++++++++++++ File Handling  ++++++++++++++++++++++++++++++++++++++
