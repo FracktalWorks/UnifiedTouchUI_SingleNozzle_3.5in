@@ -6,9 +6,9 @@ class controlScreen(mainGUI.Ui_MainWindow):
         log_info("Starting control screen init.")
         self.octopiclient = None
         super().__init__()
-
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+        
+    
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
         self.moveYPButton.pressed.connect(lambda: self.octopiclient.jog(y=self.step, speed=1000))
         self.moveYMButton.pressed.connect(lambda: self.octopiclient.jog(y=-self.step, speed=1000))

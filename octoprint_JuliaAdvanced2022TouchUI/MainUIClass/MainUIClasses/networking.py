@@ -6,8 +6,9 @@ class networking(wifiSettingsPage, ethernetSettingsPage):
     def __init__(self):
         log_info("Starting networking init.")
         super().__init__()
-
-    def setup(self):
+        
+    
+    def setup(self, octopiclient):
         wifiSettingsPage.setup(self)
         ethernetSettingsPage.setup(self)
 

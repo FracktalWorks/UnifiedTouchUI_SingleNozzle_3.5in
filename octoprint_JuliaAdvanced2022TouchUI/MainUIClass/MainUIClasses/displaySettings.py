@@ -10,8 +10,9 @@ class displaySettings(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting display settings init.")
         super().__init__()
-
-    def setup(self):
+        
+    
+    def setup(self, octopiclient):
         # Display settings
         self.rotateDisplay.pressed.connect(self.showRotateDisplaySettingsPage)
         self.calibrateTouch.pressed.connect(self.touchCalibration)

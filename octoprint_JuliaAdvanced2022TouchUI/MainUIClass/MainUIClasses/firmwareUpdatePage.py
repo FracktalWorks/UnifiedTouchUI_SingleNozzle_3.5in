@@ -10,8 +10,9 @@ class firmwareUpdatePage(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting firmware update init.")
         super().__init__()
-
-    def setup(self):
+        
+    
+    def setup(self, octopiclient):
         self.firmwareUpdateBackButton.pressed.connect(self.firmwareUpdateBack)
         
 

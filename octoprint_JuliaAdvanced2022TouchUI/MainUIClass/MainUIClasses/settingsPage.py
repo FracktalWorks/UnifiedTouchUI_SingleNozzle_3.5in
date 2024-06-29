@@ -9,15 +9,16 @@ from MainUIClass.MainUIClasses.dialog_methods import askAndReboot, tellAndReboot
 from MainUIClass.config import ip, apiKey
 import requests
 from logger import *
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 
 class settingsPage(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting settings init.")
         self.octopiclient = None
         super().__init__()
-
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+        
+    
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
         self.networkSettingsButton.pressed.connect(
             lambda: self.stackedWidget.setCurrentWidget(self.networkSettingsPage))

@@ -644,10 +644,15 @@ class octoprintAPI:
 
 
     def isFailureDetected(self):
-        url = 'http://' + self.ip + '/plugin/Julia2018PrintRestore/isFailureDetected'
-        headers = {'X-Api-Key': self.apiKey}
-        response = requests.get(url, headers=headers)
-        temp = response.json()
+        temp = None
+        try:
+            url = 'http://' + self.ip + '/plugin/Julia2018PrintRestore/isFailureDetected'
+            headers = {'X-Api-Key': self.apiKey}
+            response = requests.get(url, headers=headers)
+            temp = response.json()
+        except Exception as e:
+            print("error at self.octopiclient.isFailureDetected: " + str(e))
+            log_error("error at self.octopiclient.isFailureDetected: " + str(e))
         return temp
 
     def restore(self, restore = False):

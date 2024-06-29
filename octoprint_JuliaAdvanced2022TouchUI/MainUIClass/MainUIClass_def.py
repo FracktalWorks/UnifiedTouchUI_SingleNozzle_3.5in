@@ -19,7 +19,6 @@ from MainUIClass.MainUIClasses.calibrationPage import calibrationPage
 from MainUIClass.MainUIClasses.networking import networking
 from MainUIClass.MainUIClasses.threads import ThreadSanityCheck
 from MainUIClass.MainUIClasses.lineEdits import lineEdits
-
 from MainUIClass.config import _fromUtf8, setCalibrationPosition, Development
 import logging
 import styles
@@ -38,7 +37,7 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         '''
         log_info("Initialising all.")
         super(MainUIClass, self).__init__()
-        log_info("Done.")
+        log_info("Done initialising all mainUI classes.")
 
         
         if not Development:
@@ -75,11 +74,11 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
             # else:
             self.sanityCheck = ThreadSanityCheck(virtual=False)
             self.sanityCheck.start()
-            from MainUIClass.MainUIClasses.threads import octopiclient
-            self.octopiclient = octopiclient
+            
             self.sanityCheck.loaded_signal.connect(self.proceed)
             self.sanityCheck.startup_error_signal.connect(self.handleStartupError)
-
+            self.octopiclient = self.sanityCheck.get_octopiclient()
+            log_debug(str(self.octopiclient))
 
             for spinbox in self.findChildren(QtWidgets.QSpinBox):
                 lineEdit = spinbox.lineEdit()
@@ -102,8 +101,11 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         self.menuCartButton.setDisabled(True)
 
         log_info("Setup printer name start.")
-        printerName.setup(self)
-        print(self.printerName)
+        log_debug(" self parameter being passed: " + str(self))
+
+        # printerName.setup(self)
+        self.printerName = self.getPrinterName()
+        log_info(str(self.printerName))
         log_info("setup printer name done.")
 
         self.setPrinterNameComboBox()
@@ -243,14 +245,60 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
     def setActions(self):
         
         log_info("set actions")
+
+        log_info("calibrationPage.setup()")
+        calibrationPage.setup(self, self.octopiclient)
+
+        log_info("changeFilamentRoutine.setup()")
+        changeFilamentRoutine.setup(self, self.octopiclient)
+
+        log_info("controlScreen.setup()")
+        controlScreen.setup(self, self.octopiclient)
+
+        log_info("displaySettings.setup()")
+        displaySettings.setup(self, self.octopiclient)
+
+        log_info("filamentSensor.setup()")
+        filamentSensor.setup(self, self.octopiclient)
+
+        log_info("firmwareUpdatePage.setup()")
+        firmwareUpdatePage.setup(self, self.octopiclient)
+
+        log_info("getFilesAndInfo.setup()")
+        getFilesAndInfo.setup(self, self.octopiclient)
+
+        log_info("homePage.setup()")
+        homePage.setup(self, self.octopiclient)
+
+        log_info("menuPage.setup()")
+        menuPage.setup(self, self.octopiclient)
+
+        log_info("printLocationScreen.setup()")
+        printLocationScreen.setup(self, self.octopiclient)
+
+        log_info("printRestore.setup()")
+        printRestore.setup(self, self.octopiclient)
+
+        log_info("settingsPage.setup()")
+        settingsPage.setup(self, self.octopiclient)
+
+        log_info("softwareUpdatePage.setup()")
+        softwareUpdatePage.setup(self, self.octopiclient)
+
+        log_info("networking.setup()")
+        networking.setup(self, self.octopiclient)
+
+        log_info("lineEdits.setup()")
+        lineEdits.setup(self, self.octopiclient)
+
         
-        printerName.setup(self)
-        calibrationPage.setup(self)
 
         '''
         defines all the Slots and Button events.
         '''
         self.QtSocket.connected_signal.connect(self.onServerConnected)
+
+        log_info("set actions complete")
 
         #  # Lock settings
         #     if not Development:
@@ -269,18 +317,23 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         
         log_info("Starting onServerConnected init.")
         
+        log_info("Octopiclient: " + str(self.octopiclient))
+
+        log_info("self.isFilamentSensorInstalled()")
         self.isFilamentSensorInstalled()
         # if not self.__timelapse_enabled:
         #     return
         # if self.__timelapse_started:
         #     return
         try:
+            log_info("response = self.octopiclient.isFailureDetected()")
             response = self.octopiclient.isFailureDetected()
             if response["canRestore"] is True:
                 self.printRestoreMessageBox(response["file"])
             else:
                 self.firmwareUpdateCheck()
         except Exception as e:
+            log_error("error on Server Connected: " + str(e))
             print ("error on Server Connected: " + str(e))
             pass
 

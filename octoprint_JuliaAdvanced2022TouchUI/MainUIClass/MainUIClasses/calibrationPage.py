@@ -3,6 +3,7 @@ from PyQt5 import QtGui
 import mainGUI
 from MainUIClass.MainUIClasses.dialog_methods import tellAndReboot
 from MainUIClass.MainUIClasses.printerName import printerName
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 from logger import *
 
 class calibrationPage(mainGUI.Ui_MainWindow):
@@ -11,8 +12,7 @@ class calibrationPage(mainGUI.Ui_MainWindow):
         self.octopiclient = None
         super().__init__()
         
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
         self.printerName = printerName.getPrinterName()
         self.calibrationPosition = getCalibrationPosition(self)

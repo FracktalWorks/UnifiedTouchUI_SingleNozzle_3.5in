@@ -6,8 +6,9 @@ class lockSettings(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting lock settings init.")
         super().__init__()
-
-    def setup(self):
+        
+    
+    def setup(self, octopiclient):
         self.pgLock_pin.textChanged.connect(self.Lock_onPinInputChanged)
 
         self.pgLock_bt1.clicked.connect(lambda: self.Lock_kbAdd("1"))

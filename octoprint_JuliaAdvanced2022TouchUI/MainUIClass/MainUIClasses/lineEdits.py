@@ -9,8 +9,9 @@ class lineEdits(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting line edits init.")
         super().__init__()
-
-    def setup(self):
+        
+    
+    def setup(self, octopiclient):
         font = QtGui.QFont()
         font.setFamily(_fromUtf8("Gotham"))
         font.setPointSize(15)

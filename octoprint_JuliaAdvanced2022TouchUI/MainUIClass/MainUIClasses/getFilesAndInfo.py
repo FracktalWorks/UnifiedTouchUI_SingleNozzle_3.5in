@@ -6,15 +6,16 @@ from MainUIClass.config import _fromUtf8
 from hurry.filesize import size
 import mainGUI
 from logger import *
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 
 class getFilesAndInfo(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting get files init.")
         self.octopiclient = None
         super().__init__()
-
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+        
+    
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
         # fileListUSBPage
         self.USBStorageBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.printLocationPage))

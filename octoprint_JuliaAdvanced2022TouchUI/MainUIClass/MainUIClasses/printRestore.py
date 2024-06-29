@@ -2,15 +2,16 @@ from octoprintAPI import octoprintAPI
 import dialog
 import mainGUI
 from logger import *
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 
 class printRestore(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting print restore init.")
         self.octopiclient = None
         super().__init__()
-
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+        
+    
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
 
     def printRestoreMessageBox(self, file):

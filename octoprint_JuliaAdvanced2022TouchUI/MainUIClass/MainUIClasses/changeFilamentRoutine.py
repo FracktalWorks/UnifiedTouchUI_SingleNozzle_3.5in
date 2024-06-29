@@ -1,7 +1,8 @@
 from MainUIClass.config import filaments
 import mainGUI
-from MainUIClass.MainUIClasses import controlScreen
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 from MainUIClass.MainUIClasses.socketConnections import printerStatusText
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 from logger import *
 
 class changeFilamentRoutine(mainGUI.Ui_MainWindow):
@@ -10,8 +11,7 @@ class changeFilamentRoutine(mainGUI.Ui_MainWindow):
         self.octopiclient = None
         super().__init__()
         
-    def setup(self):        
-        from MainUIClass.MainUIClasses.threads import octopiclient
+    def setup(self, octopiclient):        
         self.octopiclient = octopiclient
         self.changeFilamentButton.pressed.connect(self.changeFilament)
         self.changeFilamentBackButton.pressed.connect(controlScreen.control)

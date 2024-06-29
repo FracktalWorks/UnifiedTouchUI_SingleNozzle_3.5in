@@ -2,17 +2,18 @@ import dialog
 import os
 import mainGUI
 from MainUIClass.MainUIClasses.socketConnections import printerStatusText
-from MainUIClass.MainUIClasses import controlScreen
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 from logger import *
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 
 class homePage(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting home page init.")
         self.octopiclient = None
         super().__init__()
-
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+        
+    
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
         self.stopButton.pressed.connect(self.stopActionMessageBox)
         self.menuButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.MenuPage))

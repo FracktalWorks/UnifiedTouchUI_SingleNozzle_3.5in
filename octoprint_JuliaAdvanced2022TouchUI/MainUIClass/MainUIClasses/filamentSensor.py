@@ -8,8 +8,9 @@ class filamentSensor(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting filament sensor init.")
         super().__init__()
-
-    def setup(self):
+        
+    
+    def setup(self, octopiclient):
         self.toggleFilamentSensorButton.clicked.connect(self.toggleFilamentSensor)
         
 

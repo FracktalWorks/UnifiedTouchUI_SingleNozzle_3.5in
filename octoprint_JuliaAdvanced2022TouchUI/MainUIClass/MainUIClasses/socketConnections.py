@@ -7,6 +7,7 @@ from MainUIClass.config import _fromUtf8, ip, apiKey
 import styles
 import requests
 from logger import *
+from MainUIClass.MainUIClasses.controlScreen import controlScreen
 
 printerStatusText = None
 
@@ -15,9 +16,9 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
         log_info("Starting socket connections init.")
         self.octopiclient = None
         super().__init__()
-
-    def setup(self):
-        from MainUIClass.MainUIClasses.threads import octopiclient
+        
+    
+    def setup(self, octopiclient):
         self.octopiclient = octopiclient
         # Calibrate page
         self.z_probing_failed_signal.connect(self.showProbingFailed)

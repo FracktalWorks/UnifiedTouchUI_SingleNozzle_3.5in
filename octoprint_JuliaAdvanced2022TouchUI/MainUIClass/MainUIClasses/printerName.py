@@ -19,14 +19,15 @@ allowed_names = ["Julia Advanced", "Julia Extended", "Julia Pro Single Nozzle"]
 class printerName(mainGUI.Ui_MainWindow):
     def __init__(self):
         log_info("Starting printer name init.")
+        log_debug("Printer name self parameter passed: " + str(self))
+        self.initialisePrinterNameJson()
         super().__init__()
 
-    def setup(self):
-        self.initialisePrinterNameJson()
+    def setup(self, octopiclient):
         self.printerName = self.getPrinterName()
-        self.enterPrinterName.clicked.connect(self.enterPrinterName_function)
+        self.enterPrinterName.clicked.connect(self.enterPrinterName)
 
-    def enterPrinterName_function(self):
+    def enterPrinterName(self):
         temp_printerName = self.getPrinterName()
         if temp_printerName != self.printerNameComboBox.currentText():
             self.setPrinterName(self.printerNameComboBox.currentText())
@@ -50,7 +51,7 @@ class printerName(mainGUI.Ui_MainWindow):
                 except (FileNotFoundError, json.JSONDecodeError):
                     self.setPrinterName("Julia Advanced")
         except Exception as e:
-            self._logger.error(e)
+            log_error("error while initialising printerName json: " + str(e))
 
     def setPrinterName(self, name):
         data = {"printer_name": name}

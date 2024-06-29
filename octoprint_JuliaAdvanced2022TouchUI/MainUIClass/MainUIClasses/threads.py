@@ -5,24 +5,24 @@ from octoprintAPI import octoprintAPI
 import subprocess
 import time
 
-octopiclient = None
-
 class ThreadSanityCheck(QtCore.QThread):
 
     loaded_signal = QtCore.pyqtSignal()
     startup_error_signal = QtCore.pyqtSignal()
 
-    def __init__(self, logger = None, virtual=False):        
+    def __init__(self, logger = None, virtual=False): 
         log_info("Starting sanity check init.")
-        
         super(ThreadSanityCheck, self).__init__()
+        self.octopiclient = None
         self.MKSPort = None
         self.virtual = virtual
         if not Development:
             self._logger = logger
 
+        log_debug("Exiting sanity check init.")
+
     def run(self):
-        global octopiclient
+        # global octopiclient
         self.shutdown_flag = False
         # get the first value of t1 (runtime check)
         uptime = 0
@@ -34,7 +34,9 @@ class ThreadSanityCheck(QtCore.QThread):
                     self.shutdown_flag = True
                     self.startup_error_signal.emit()
                     break
-                octopiclient = octoprintAPI(ip, apiKey)
+                log_debug("initialising octopiclient in threads.")
+                self.octopiclient = octoprintAPI(ip, apiKey)
+                log_debug(self.octopiclient)
                 if not self.virtual:
                     result = subprocess.Popen("dmesg | grep 'ttyUSB'", stdout=subprocess.PIPE, shell=True).communicate()[0]
                     result = result.split(b'\n')  # each ssid and pass from an item in a list ([ssid pass,ssid paas])
@@ -48,9 +50,10 @@ class ThreadSanityCheck(QtCore.QThread):
                             print(self.MKSPort)
 
                     if not self.MKSPort:
-                        octopiclient.connectPrinter(port="VIRTUAL", baudrate=115200)
+                        self.octopiclient.connectPrinter(port="VIRTUAL", baudrate=115200)
                     else:
-                        octopiclient.connectPrinter(port="/dev/" + self.MKSPort, baudrate=115200)
+                        log_debug("Octopiclient connected.")
+                        self.octopiclient.connectPrinter(port="/dev/" + self.MKSPort, baudrate=115200)
                 break
             except Exception as e:
                 time.sleep(1)
@@ -58,3 +61,9 @@ class ThreadSanityCheck(QtCore.QThread):
                 print("Not Connected!")
         if not self.shutdown_flag:
             self.loaded_signal.emit()
+
+    def get_octopiclient(self):
+        while self.octopiclient == None:
+            log_warning("octopiclient: " + str(self.octopiclient) + "\t not returning.")
+        log_info("returning octopiclient successfully.")
+        return self.octopiclient
