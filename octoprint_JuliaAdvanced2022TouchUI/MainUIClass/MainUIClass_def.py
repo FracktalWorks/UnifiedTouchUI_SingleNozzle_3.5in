@@ -242,9 +242,13 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         self.isFilamentSensorInstalled()
         self.onServerConnected()
 
-    def setActions(self):
+    def setActions(self):        
+        '''
+        defines all the Slots and Button events.
+        '''
         
         log_info("set actions")
+        print("Set Actions")
 
         log_info("calibrationPage.setup()")
         calibrationPage.setup(self, self.octopiclient)
@@ -291,11 +295,6 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         log_info("lineEdits.setup()")
         lineEdits.setup(self, self.octopiclient)
 
-        
-
-        '''
-        defines all the Slots and Button events.
-        '''
         self.QtSocket.connected_signal.connect(self.onServerConnected)
 
         log_info("set actions complete")
@@ -329,11 +328,15 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
             log_info("response = self.octopiclient.isFailureDetected()")
             response = self.octopiclient.isFailureDetected()
             if response["canRestore"] is True:
+                log_debug("response['canRestore'] is True")
                 self.printRestoreMessageBox(response["file"])
             else:
+                log_debug("response['canRestore'] is False")
                 self.firmwareUpdateCheck()
         except Exception as e:
             log_error("error on Server Connected: " + str(e))
             print ("error on Server Connected: " + str(e))
             pass
+
+        log_info("Exiting on server connected.")
 

@@ -14,10 +14,12 @@ class homePage(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class homePage: " + str(self.octopiclient))
         self.stopButton.pressed.connect(self.stopActionMessageBox)
         self.menuButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.MenuPage))
-        self.controlButton.pressed.connect(controlScreen.control)
+        self.controlButton.pressed.connect(self.control)
         self.playPauseButton.clicked.connect(self.playPauseAction)
         
 

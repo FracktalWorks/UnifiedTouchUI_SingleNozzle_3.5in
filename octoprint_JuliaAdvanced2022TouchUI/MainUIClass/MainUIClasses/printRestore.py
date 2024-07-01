@@ -12,7 +12,9 @@ class printRestore(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class printRestore: " + str(self.octopiclient))
 
     def printRestoreMessageBox(self, file):
         '''

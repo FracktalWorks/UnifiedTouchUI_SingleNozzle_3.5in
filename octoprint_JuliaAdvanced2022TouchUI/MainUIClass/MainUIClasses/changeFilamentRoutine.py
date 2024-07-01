@@ -12,13 +12,15 @@ class changeFilamentRoutine(mainGUI.Ui_MainWindow):
         super().__init__()
         
     def setup(self, octopiclient):        
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class changeFilamentRoutine: " + str(self.octopiclient))
         self.changeFilamentButton.pressed.connect(self.changeFilament)
-        self.changeFilamentBackButton.pressed.connect(controlScreen.control)
+        self.changeFilamentBackButton.pressed.connect(self.control)
         self.changeFilamentBackButton2.pressed.connect(self.changeFilamentCancel)
         self.changeFilamentUnloadButton.pressed.connect(lambda: self.unloadFilament())
         self.changeFilamentLoadButton.pressed.connect(lambda: self.loadFilament())
-        self.loadDoneButton.pressed.connect(controlScreen.control)
+        self.loadDoneButton.pressed.connect(self.control)
         self.unloadDoneButton.pressed.connect(self.changeFilament)
         self.retractFilamentButton.pressed.connect(lambda: self.octopiclient.extrude(-20))
         self.ExtrudeButton.pressed.connect(lambda: self.octopiclient.extrude(20))
@@ -61,5 +63,5 @@ class changeFilamentRoutine(mainGUI.Ui_MainWindow):
 
     def changeFilamentCancel(self):
         self.changeFilamentHeatingFlag = False
-        controlScreen.coolDownAction(self)
-        controlScreen.control(self)
+        self.coolDownAction()
+        self.control()

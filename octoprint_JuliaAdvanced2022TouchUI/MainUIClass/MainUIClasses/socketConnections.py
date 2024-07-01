@@ -19,7 +19,9 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class socketConnections: " + str(self.octopiclient))
         # Calibrate page
         self.z_probing_failed_signal.connect(self.showProbingFailed)
         self.z_probe_offset_signal.connect(self.updateEEPROMProbeOffset)

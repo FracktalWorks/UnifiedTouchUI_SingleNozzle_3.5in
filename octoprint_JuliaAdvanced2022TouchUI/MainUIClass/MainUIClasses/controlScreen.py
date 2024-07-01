@@ -9,7 +9,9 @@ class controlScreen(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class controlScreen: " + str(self.octopiclient))
         self.moveYPButton.pressed.connect(lambda: self.octopiclient.jog(y=self.step, speed=1000))
         self.moveYMButton.pressed.connect(lambda: self.octopiclient.jog(y=-self.step, speed=1000))
         self.moveXMButton.pressed.connect(lambda: self.octopiclient.jog(x=-self.step, speed=1000))
@@ -40,8 +42,6 @@ class controlScreen(mainGUI.Ui_MainWindow):
         self.moveZPBabyStep.pressed.connect(lambda: self.octopiclient.gcode(command='M290 Z0.025'))
         self.moveZMBabyStep.pressed.connect(lambda: self.octopiclient.gcode(command='M290 Z-0.025'))
 
-
-    @classmethod
     def control(self):
         self.stackedWidget.setCurrentWidget(self.controlPage)
         self.toolTempSpinBox.setProperty("value", float(self.tool0TargetTemperature.text()))
@@ -70,7 +70,6 @@ class controlScreen(mainGUI.Ui_MainWindow):
             self.step10Button.setFlat(True)
             self.step = 10
 
-    @classmethod
     def coolDownAction(self):
         '''
         Turns all heaters and fans off

@@ -6,7 +6,6 @@ from MainUIClass.config import _fromUtf8
 from hurry.filesize import size
 import mainGUI
 from logger import *
-from MainUIClass.MainUIClasses.controlScreen import controlScreen
 
 class getFilesAndInfo(mainGUI.Ui_MainWindow):
     def __init__(self):
@@ -16,7 +15,9 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class getFilesAndInfo: " + str(self.octopiclient))
         # fileListUSBPage
         self.USBStorageBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.printLocationPage))
         self.USBStorageScrollUp.pressed.connect(
@@ -44,7 +45,6 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         self.fileSelectedUSBTransferButton.pressed.connect(lambda: self.transferToLocal(prnt=False))
         self.fileSelectedUSBPrintButton.pressed.connect(lambda: self.transferToLocal(prnt=True))
 
-    @classmethod
     def fileListLocal(self):
         '''
         Gets the file list from octoprint server, displays it on the list, as well as
@@ -66,7 +66,6 @@ class getFilesAndInfo(mainGUI.Ui_MainWindow):
         #self.fileListWidget.addItems([f['name'] for f in files])
         self.fileListWidget.setCurrentRow(0)
 
-    @classmethod
     def fileListUSB(self):
         '''
         Gets the file list from octoprint server, displays it on the list, as well as

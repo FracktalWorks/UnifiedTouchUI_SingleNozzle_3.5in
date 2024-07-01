@@ -10,7 +10,9 @@ class softwareUpdatePage(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class softwareIUpdatePage: " + str(self.octopiclient))
         self.softwareUpdateBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))
         self.performUpdateButton.pressed.connect(lambda: self.octopiclient.performSoftwareUpdate())
         

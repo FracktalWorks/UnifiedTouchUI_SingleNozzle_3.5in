@@ -19,7 +19,9 @@ class settingsPage(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        self.octopiclient = octopiclient
+        # self.octopiclient = octopiclient
+
+        log_debug("Octopiclient inside class settingsPage: " + str(self.octopiclient))
         self.networkSettingsButton.pressed.connect(
             lambda: self.stackedWidget.setCurrentWidget(self.networkSettingsPage))
         self.displaySettingsButton.pressed.connect(
