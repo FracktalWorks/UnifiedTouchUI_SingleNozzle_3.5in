@@ -9,6 +9,7 @@ from MainUIClass.decorators import run_async
 from MainUIClass.MainUIClasses.start_keyboard import startKeyboard
 from MainUIClass.MainUIClasses.lineEdits import lineEdits
 from logger import *
+from MainUIClass.MainUIClasses.start_keyboard import startKeyboard
 
 class wifiSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
     def __init__(self):
@@ -24,6 +25,7 @@ class wifiSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
         Sets up connections for GUI elements and buttons related to WiFi settings.
 
         """
+        self.wifiPasswordLineEdit.clicked_signal.connect(lambda: startKeyboard(self, self.wifiPasswordLineEdit.setText))
         self.wifiSettingsSSIDKeyboardButton.pressed.connect(
             lambda: startKeyboard(self, self.wifiSettingsComboBox.addItem))
         self.wifiSettingsCancelButton.pressed.connect(
