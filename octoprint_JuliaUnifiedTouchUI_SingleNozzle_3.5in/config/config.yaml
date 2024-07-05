@@ -1,0 +1,145 @@
+accessControl:
+  autologinAs: admin
+  autologinLocal: true
+  localNetworks:
+  - 127.0.0.0/8
+  - 192.168.0.0/24
+  - 192.168.1.0/24
+  salt: 1jjovY7wxfFi7NrEuFv6eTAXgmyvECPc
+api:
+  allowCrossOrigin: true
+  key: B508534ED20348F090B4D0AD637D3660
+appearance:
+  name: Julia Advanced
+plugins:
+  Julia2018FilamentSensor:
+    _config_version: 2
+    contact_door: '0'
+    contact_extruder0: '0'
+    contact_extruder1: '0'
+    enabled_door: '0'
+    enabled_extruder0: '1'
+    enabled_extruder1: '0'
+    pause_print: '1'
+  Julia2018PrintRestore:
+    _config_version: 2
+    enableBabystep: true
+  announcements:
+    _config_version: 1
+    channels:
+      _blog:
+        read_until: 1645700400
+      _important:
+        read_until: 1521111600
+      _octopi:
+        read_until: 1646055600
+      _plugins:
+        read_until: 1646287200
+      _releases:
+        read_until: 1642677300
+    enabled_channels:
+    - _important
+    - _plugins
+  discovery:
+    upnpUuid: 7d61cbb7-f5c7-4221-949c-fd27225bf68e
+  errortracking:
+    unique_id: 4b7b81dd-6112-41ad-ba35-510c25fcb168
+  firmwareupdater:
+    avrdude_avrmcu: m2560
+    avrdude_baudrate: '115200'
+    avrdude_path: /usr/bin/avrdude
+    avrdude_programmer: wiring
+    check_after_connect: false
+    flash_method: avrdude
+  gcodeviewer:
+    _config_version: 1
+  softwareupdate:
+    _config_version: 9
+  tracking:
+    enabled: false
+    unique_id: bca9adfe-4139-4ffe-901d-071386764f1b
+  firmware_check:
+    ignore_infos: true
+  virtual_printer:
+    _config_version: 1
+    enabled: true
+printerProfiles:
+  default: _default
+  defaultProfile:
+    axes:
+      e:
+        inverted: false
+        speed: 300
+      x:
+        inverted: false
+        speed: 6000
+      y:
+        inverted: false
+        speed: 6000
+      z:
+        inverted: false
+        speed: 200
+    color: default
+    extruder:
+      count: 1
+      nozzleDiameter: 0.4
+      offsets:
+      - - 0.0
+        - 0.0
+      sharedNozzle: false
+    heatedBed: true
+    id: _default
+    model: Fracktal Works Julia Series
+    name: Julia Advanced
+    volume:
+      custom_box: false
+      depth: 200.0
+      formFactor: rectangular
+      height: 200.0
+      origin: lowerleft
+      width: 200.0
+serial:
+  blacklistedPorts:
+  - /dev/ttyS*
+  disconnectOnErrors: false
+  ignoreErrorsFromFirmware: true
+server:
+  commands:
+    serverRestartCommand: sudo shutdown -r now
+    systemRestartCommand: sudo shutdown -r now
+    systemShutdownCommand: sudo shutdown -h now
+  firstRun: false
+  host: 127.0.0.1
+  onlineCheck:
+    enabled: true
+  pluginBlacklist:
+    enabled: true
+  secretKey: AJI25uCwfpnkfxvKhd4oPs60GKkcrUfr
+  seenWizards:
+    backup: null
+    corewizard: 4
+    tracking: null
+system:
+  actions:
+  - action: streamon
+    command: sudo systemctl start webcamd
+    confirm: false
+    name: Start video stream
+  - action: streamoff
+    command: sudo systemctl stop webcamd
+    confirm: false
+    name: Stop video stream
+temperature:
+  profiles:
+  - bed: 100
+    chamber: null
+    extruder: 210
+    name: ABS
+  - bed: 60
+    chamber: null
+    extruder: 180
+    name: PLA
+webcam:
+  ffmpeg: /usr/bin/ffmpeg
+  snapshot: http://127.0.0.1:8080/?action=snapshot
+  stream: /webcam/?action=stream
