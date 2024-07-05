@@ -19,6 +19,7 @@ from MainUIClass.MainUIClasses.calibrationPage import calibrationPage
 from MainUIClass.MainUIClasses.networking import networking
 from MainUIClass.MainUIClasses.threads import ThreadSanityCheck
 from MainUIClass.MainUIClasses.lineEdits import lineEdits
+from MainUIClass.MainUIClasses.socketConnections import socketConnections
 from MainUIClass.config import _fromUtf8, setCalibrationPosition, Development
 import logging
 import styles
@@ -26,7 +27,7 @@ from MainUIClass.socket_qt import QtWebsocket
 from logger import *
 import dialog
 
-class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, settingsPage, softwareUpdatePage, calibrationPage, networking, lineEdits):
+class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen, displaySettings, filamentSensor, firmwareUpdatePage, getFilesAndInfo, homePage, menuPage, printLocationScreen, printRestore, settingsPage, softwareUpdatePage, calibrationPage, networking, lineEdits, socketConnections):
     
     def __init__(self):
 
@@ -250,6 +251,9 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         log_info("set actions")
         print("Set Actions")
 
+        log_info("socketConnections.setup()")
+        socketConnections.setup(self, self.octopiclient)
+
         log_info("calibrationPage.setup()")
         calibrationPage.setup(self, self.octopiclient)
 
@@ -325,8 +329,9 @@ class MainUIClass(QMainWindow, printerName, changeFilamentRoutine, controlScreen
         # if self.__timelapse_started:
         #     return
         try:
-            log_info("response = self.octopiclient.isFailureDetected()")
+            log_info("octopiclient at response = self.octopiclient.isFailureDetected(): " + str(self.octopiclient))
             response = self.octopiclient.isFailureDetected()
+            print(response)
             if response["canRestore"] is True:
                 log_debug("response['canRestore'] is True")
                 self.printRestoreMessageBox(response["file"])

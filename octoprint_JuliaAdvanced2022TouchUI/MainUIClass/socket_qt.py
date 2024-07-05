@@ -29,7 +29,7 @@ class QtWebsocket(QtCore.QThread):
     z_probing_failed_signal = QtCore.pyqtSignal()
 
     def __init__(self):
-
+        print("Starting init of websocket.")
         super(QtWebsocket, self).__init__()
 
         url = "ws://{}/sockjs/{:0>3d}/{}/websocket".format(
@@ -51,6 +51,7 @@ class QtWebsocket(QtCore.QThread):
         self.ws.send(payload)
 
     def authenticate(self):
+        print("Starting handshake in authenticate method.")
         # perform passive login to retrieve username and session key for API key
         url = 'http://' + ip + '/api/login'
         headers = {'content-type': 'application/json', 'X-Api-Key': apiKey}
@@ -90,7 +91,7 @@ class QtWebsocket(QtCore.QThread):
 
     @run_async
     def process(self, data):
-
+        # print(json.dumps(data, indent=4))
         if "event" in data:
             if data["event"]["type"] == "Connected":
                 self.connected_signal.emit()

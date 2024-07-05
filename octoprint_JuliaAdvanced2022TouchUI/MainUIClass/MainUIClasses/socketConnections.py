@@ -19,30 +19,30 @@ class socketConnections(QtWebsocket, mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        # self.octopiclient = octopiclient
+        self.octopiclient = octopiclient
 
         log_debug("Octopiclient inside class socketConnections: " + str(self.octopiclient))
         # Calibrate page
-        self.z_probing_failed_signal.connect(self.showProbingFailed)
-        self.z_probe_offset_signal.connect(self.updateEEPROMProbeOffset)
-        self.z_home_offset_signal.connect(self.getZHomeOffset)
+        self.QtSocket.z_probing_failed_signal.connect(self.showProbingFailed)
+        self.QtSocket.z_probe_offset_signal.connect(self.updateEEPROMProbeOffset)
+        self.QtSocket.z_home_offset_signal.connect(self.getZHomeOffset)
 
         # Firmware Update
-        self.firmware_updater_signal.connect(self.firmwareUpdateHandler)
+        self.QtSocket.firmware_updater_signal.connect(self.firmwareUpdateHandler)
 
         # Filament Sensor
-        self.filament_sensor_triggered_signal.connect(self.filamentSensorHandler)
+        self.QtSocket.filament_sensor_triggered_signal.connect(self.filamentSensorHandler)
 
         # Printer Status
-        self.temperatures_signal.connect(self.updateTemperature)
-        self.status_signal.connect(self.updateStatus)
-        self.print_status_signal.connect(self.updatePrintStatus)
+        self.QtSocket.temperatures_signal.connect(self.updateTemperature)
+        self.QtSocket.status_signal.connect(self.updateStatus)
+        self.QtSocket.print_status_signal.connect(self.updatePrintStatus)
 
         # Software Update Page
-        self.update_started_signal.connect(self.softwareUpdateProgress)
-        self.update_log_signal.connect(self.softwareUpdateProgressLog)
-        self.update_log_result_signal.connect(self.softwareUpdateResult)
-        self.update_failed_signal.connect(self.updateFailed)
+        self.QtSocket.update_started_signal.connect(self.softwareUpdateProgress)
+        self.QtSocket.update_log_signal.connect(self.softwareUpdateProgressLog)
+        self.QtSocket.update_log_result_signal.connect(self.softwareUpdateResult)
+        self.QtSocket.update_failed_signal.connect(self.updateFailed)
         
 
 
