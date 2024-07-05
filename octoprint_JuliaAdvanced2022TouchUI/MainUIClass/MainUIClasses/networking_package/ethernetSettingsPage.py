@@ -10,10 +10,18 @@ from logger import *
 
 class ethernetSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
     def __init__(self):
+        """
+        Initializes the Ethernet settings page.
+
+        """
         log_info("Starting eth settings init.")
         super().__init__()
 
     def setup(self):
+        """
+        Sets up connections for GUI elements and buttons related to Ethernet settings.
+
+        """
         self.ethStaticCheckBox.stateChanged.connect(self.ethStaticChanged)
         self.ethStaticCheckBox.stateChanged.connect(lambda: self.ethStaticSettings.setVisible(self.ethStaticCheckBox.isChecked()))
         self.ethStaticIpKeyboardButton.pressed.connect(lambda: self.ethShowKeyboard(self.ethStaticIpLineEdit))
@@ -22,14 +30,29 @@ class ethernetSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
         self.ethSettingsCancelButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.networkSettingsPage))
 
     def ethSettings(self):
+        """
+        Displays the Ethernet settings page and initializes network information.
+
+        """
         self.stackedWidget.setCurrentWidget(self.ethSettingsPage)
         self.ethNetworkInfo()
 
     def ethStaticChanged(self, state):
+        """
+        Handles changes in the state of the static IP checkbox.
+
+        Args:
+            state (int): State of the checkbox.
+
+        """
         self.ethStaticSettings.setVisible(self.ethStaticCheckBox.isChecked())
         self.ethStaticSettings.setEnabled(self.ethStaticCheckBox.isChecked())
 
     def ethNetworkInfo(self):
+        """
+        Retrieves and displays current Ethernet network information.
+
+        """
         txt = subprocess.Popen("cat /etc/dhcpcd.conf", stdout=subprocess.PIPE, shell=True).communicate()[0]
 
         reEthGlobal = b"interface\s+eth0\s?(static\s+[a-z0-9./_=\s]+\n)*"
@@ -60,12 +83,33 @@ class ethernetSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
         self.ethStaticGatewayLineEdit.setText(txtEthGateway)
 
     def isIpErr(self, ip):
+        """
+        Checks if the provided IP address is valid.
+
+        Args:
+            ip (str): IP address to validate.
+
+        Returns:
+            bool: True if IP address is invalid, False otherwise.
+
+        """
         return (re.search(r"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$", ip) is None)
 
     def showIpErr(self, var):
+        """
+        Displays a warning dialog for an invalid IP address.
+
+        Args:
+            var (str): Variable name associated with the invalid input.
+
+        """
         return dialog.WarningOk(self, "Invalid input: {0}".format(var))
 
     def ethSaveStaticNetworkInfo(self):
+        """
+        Saves the entered static Ethernet network information to configuration file.
+
+        """
         cbStaticEnabled = self.ethStaticCheckBox.isChecked()
         txtEthAddress = str(self.ethStaticIpLineEdit.text())
         txtEthGateway = str(self.ethStaticGatewayLineEdit.text())
@@ -107,6 +151,13 @@ class ethernetSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
             self.stackedWidget.setCurrentWidget(self.networkSettingsPage)
 
     def ethReconnectResult(self, x):
+        """
+        Handles the result of Ethernet network reconnection.
+
+        Args:
+            x (str): IP address if connection is successful, None otherwise.
+
+        """
         self.ethMessageBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
         if x is not None:
             self.ethMessageBox.setLocalIcon('success.png')
@@ -115,4 +166,12 @@ class ethernetSettingsPage(lineEdits, mainGUI.Ui_MainWindow):
             self.ethMessageBox.setText("Not able to connect to Ethernet")
 
     def ethShowKeyboard(self, textbox):
+        """
+        Displays the keyboard for entering Ethernet settings.
+
+        Args:
+            textbox (QLineEdit): Line edit field for entering Ethernet settings.
+
+        """
         self.startKeyboard(textbox.setText, onlyNumeric=True, noSpace=True, text=str(textbox.text()))
+

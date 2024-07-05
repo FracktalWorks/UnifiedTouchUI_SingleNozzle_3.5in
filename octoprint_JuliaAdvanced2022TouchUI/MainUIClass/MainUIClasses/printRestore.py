@@ -12,19 +12,22 @@ class printRestore(mainGUI.Ui_MainWindow):
         
     
     def setup(self, octopiclient):
-        # self.octopiclient = octopiclient
-
+        self.octopiclient = octopiclient
         log_debug("Octopiclient inside class printRestore: " + str(self.octopiclient))
 
     def printRestoreMessageBox(self, file):
         '''
         Displays a message box alerting the user of a filament error
         '''
-        if dialog.WarningYesNo(self, file + " Did not finish, would you like to restore?"):
-            response = self.octopiclient.restore(restore=True)
-            if response["status"] == "Successfully Restored":
-                dialog.WarningOk(response["status"])
+        try:
+            if dialog.WarningYesNo(self, f"{file} Did not finish, would you like to restore?"):
+                response = self.octopiclient.restore(restore=True)
+                if response["status"] == "Successfully Restored":
+                    dialog.WarningOk(self, response["status"])
+                else:
+                    dialog.WarningOk(self, response["status"])
             else:
-                dialog.WarningOk(response["status"])
-        else:
-            octoprintAPI.restore(restore=False)
+                octoprintAPI.restore(restore=False)
+        except Exception as e:
+            log_error(f"Error during print restore: {str(e)}")
+            dialog.WarningOk(self, f"Error during print restore: {str(e)}")

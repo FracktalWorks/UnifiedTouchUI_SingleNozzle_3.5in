@@ -1,7 +1,7 @@
 import sys
 from MainUIClass.MainUIClass_def import MainUIClass
 from PyQt5 import QtWidgets
-from logger import start_logger, log_debug, log_info, log_warning, log_error, log_critical
+from logger import *
 
 # from MainUIClass.config import Development
 # if not Development:
