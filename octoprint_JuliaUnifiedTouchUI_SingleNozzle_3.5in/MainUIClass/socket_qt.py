@@ -6,6 +6,10 @@ import uuid
 import json
 import websocket
 import requests
+import time
+import threading
+from logger import *
+import dialog
 
 
 class QtWebsocket(QtCore.QThread):
@@ -37,6 +41,10 @@ class QtWebsocket(QtCore.QThread):
             random.randrange(0, stop=999),  # server_id
             uuid.uuid4()  # session_id
         )
+
+        self.stop_event = threading.Event()
+        self.heartbeat_checker = HeartbeatChecker(self, self.stop_event)
+
         self.ws = websocket.WebSocketApp(url,
                                          on_message=self.on_message,
                                          on_error=self.on_error,
@@ -69,6 +77,7 @@ class QtWebsocket(QtCore.QThread):
         message_type = message[0]
         if message_type == "h":
             # "heartbeat" message
+            self.heartbeat_checker.update_heartbeat_time()
             return
         elif message_type == "o":
             # "open" message
@@ -167,6 +176,7 @@ class QtWebsocket(QtCore.QThread):
 
     def on_open(self,ws):
         self.authenticate()
+        self.heartbeat_checker.start()
 
     def on_close(self, ws):
         pass
@@ -174,3 +184,37 @@ class QtWebsocket(QtCore.QThread):
     def on_error(self, ws, error):
         print(error)
         pass
+
+    def reconnect(self):
+        self.stop_event.set()
+        self.ws.close()
+        self.start()
+
+
+class HeartbeatChecker(threading.Thread):
+    def __init__(self, ws, stop_event):
+        super().__init__()
+        self.ws = ws
+        self.stop_event = stop_event
+        self.last_heartbeat_time = None
+        self.start_time = time.time()
+
+    def run(self):
+        try:
+            while not self.stop_event.is_set():
+                if self.last_heartbeat_time is not None:
+                    time_since_last_heartbeat = time.time() - self.last_heartbeat_time
+                    if time_since_last_heartbeat > 300: #5 Minutes
+                        print("No heartbeat received for 60 seconds. Reestablishing connection.")
+                        self.ws.reconnect()
+                    
+                time.sleep(5)  # Check every 5 seconds
+        except Exception as e:
+            error_message = f"Error in Heart beat checker: {str(e)}"
+            log_error(error_message)
+            if dialog.WarningOk(self, error_message, overlay=True):
+                pass
+
+    def update_heartbeat_time(self):
+        self.last_heartbeat_time = time.time()
+
